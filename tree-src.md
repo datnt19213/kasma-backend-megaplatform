@@ -1,0 +1,38 @@
+```
+└── 📁src
+    └── 📁assets
+        ├── index.ts
+    └── 📁common
+        └── 📁decorators
+            ├── index.ts
+        └── 📁filters
+            ├── index.ts
+        └── 📁guards
+            ├── index.ts
+        └── 📁interceptors
+            ├── index.ts
+        └── 📁pipes
+            ├── index.ts
+    └── 📁config
+        └── 📁apps
+            ├── index.ts
+        └── 📁environments
+            ├── index.ts
+    └── 📁database
+        ├── index.ts
+    └── 📁dto
+    └── 📁entities
+    └── 📁modules
+        └── 📁app
+            ├── app.controller.ts
+            ├── app.module.ts
+            ├── app.service.ts
+        ├── index.ts
+    └── 📁shared
+        ├── index.ts
+    └── 📁styles
+        ├── index.ts
+    └── 📁utils
+        ├── index.ts
+    └── main.ts
+```
