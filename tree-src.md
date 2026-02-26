@@ -1,38 +1,57 @@
 ```
-└── 📁src
-    └── 📁assets
-        ├── index.ts
-    └── 📁common
-        └── 📁decorators
+└── 📁kasma-backend
+    └── 📁src
+        └── 📁assets
             ├── index.ts
-        └── 📁filters
+        └── 📁common
+            └── 📁decorators
+                ├── index.ts
+            └── 📁filters
+                ├── index.ts
+            └── 📁guards
+                ├── index.ts
+            └── 📁interceptors
+                ├── idempotency.interceptor.ts
+                ├── index.ts
+            └── 📁pipes
+                ├── index.ts
+        └── 📁config
+            └── 📁apps
+                ├── index.ts
+            └── 📁environments
+                ├── index.ts
+        └── 📁database
+            ├── database.module.ts
             ├── index.ts
-        └── 📁guards
+        └── 📁dto
+        └── 📁entities
+        └── 📁modules
+            └── 📁app
+                ├── app.controller.ts
+                ├── app.module.ts
+                ├── app.service.ts
+                ├── index.ts
             ├── index.ts
-        └── 📁interceptors
+        └── 📁shared
             ├── index.ts
-        └── 📁pipes
+        └── 📁styles
             ├── index.ts
-    └── 📁config
-        └── 📁apps
+        └── 📁utils
             ├── index.ts
-        └── 📁environments
-            ├── index.ts
-    └── 📁database
-        ├── index.ts
-    └── 📁dto
-    └── 📁entities
-    └── 📁modules
-        └── 📁app
-            ├── app.controller.ts
-            ├── app.module.ts
-            ├── app.service.ts
-        ├── index.ts
-    └── 📁shared
-        ├── index.ts
-    └── 📁styles
-        ├── index.ts
-    └── 📁utils
-        ├── index.ts
-    └── main.ts
+        ├── main.ts
+    └── 📁test
+        ├── app.e2e-spec.ts
+        ├── jest-e2e.json
+    ├── .env
+    ├── .gitignore
+    ├── .prettierrc
+    ├── eslint.config.mjs
+    ├── nest-cli.json
+    ├── package.json
+    ├── README.md
+    ├── tree-src.md
+    ├── tsconfig.build.json
+    ├── tsconfig.build.tsbuildinfo
+    ├── tsconfig.json
+    └── yarn.lock
 ```

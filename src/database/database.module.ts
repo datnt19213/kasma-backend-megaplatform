@@ -1,12 +1,12 @@
 import {
-    createKeyv,
+  createKeyv,
 } from '@keyv/redis'; // hoặc import KeyvRedis from '@keyv/redis'
 import { CacheModule } from '@nestjs/cache-manager';
 // src/database/database.module.ts
 import { Module } from '@nestjs/common';
 import {
-    ConfigModule,
-    ConfigService,
+  ConfigModule,
+  ConfigService,
 } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -29,7 +29,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
                     name: 'postgres',
                     type: 'postgres' as const,
                     url,
-                    entities: [__dirname + '/../**/*.postgres-entity{.ts,.js}'], // chỉ load entity Postgres
+                    entities: [__dirname + '/../**/*.entity{.ts,.js}'], // load all entities
                     synchronize: configService.get<boolean>('POSTGRES_SYNCHRONIZE', true), // true dev, false prod
                     logging: process.env.NODE_ENV === 'development' ? ['query', 'error'] : false,
                 };
@@ -54,7 +54,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
                     entities: [__dirname + '/../**/*.mongo-entity{.ts,.js}'], // chỉ load entity Mongo
                     synchronize: configService.get<boolean>('MONGO_SYNCHRONIZE', true),
                     logging: process.env.NODE_ENV === 'development' ? ['query', 'error'] : false,
-                    useUnifiedTopology: true,
                 };
             },
         }),
