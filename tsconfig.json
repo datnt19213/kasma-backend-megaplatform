@@ -28,6 +28,7 @@
       "@/database/*": ["./src/database/*"],
       "@/dto/*": ["./src/dto/*"],
       "@/entities/*": ["./src/entities/*"],
+      "@/mongo-entities/*": ["./src/mongo-entities/*"],
       "@/shared/*": ["./src/shared/*"],
       "@/utils/*": ["./src/utils/*"],
       "@/assets/*": ["./src/assets/*"],

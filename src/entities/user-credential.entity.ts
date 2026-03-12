@@ -1,10 +1,13 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+} from 'typeorm';
+import { MultiTenantEntity } from './base/multi-tenant.entity';
 
 @Entity('UserCredential')
 @Index(['user_id'])
-export class UserCredential {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+export class UserCredential extends MultiTenantEntity {
 
   @Column('uuid')
   user_id: string;

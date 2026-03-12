@@ -1,5 +1,22 @@
-import { IsBoolean, IsEmail, IsInt, IsNotEmpty, IsOptional, IsString, Min, MinLength } from 'class-validator';
 import { Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+  MinLength,
+} from 'class-validator';
+
+export enum OtpType {
+    REGISTER = 'REGISTER',
+    LOGIN = 'LOGIN',
+    FORGOT_PASSWORD = 'FORGOT_PASSWORD',
+    TWO_FA = 'TWO_FA',
+}
 
 export class LoginDto {
     @IsNotEmpty({ message: 'Email or username is required' })
@@ -75,4 +92,39 @@ export class LoginLogsResponseDto {
     page: number;
     limit: number;
     totalPages: number;
+}
+
+export class VerifyOtpDto {
+    @IsNotEmpty({ message: 'Identifier is required' })
+    @IsString()
+    identifier: string;
+
+    @IsNotEmpty({ message: 'OTP code is required' })
+    @IsString()
+    @MinLength(6, { message: 'OTP must be 6 characters' })
+    code: string;
+
+    @IsNotEmpty({ message: 'Type is required' })
+    @IsEnum(OtpType)
+    type: OtpType;
+}
+
+export class ResendOtpDto {
+    @IsNotEmpty({ message: 'Identifier is required' })
+    @IsString()
+    identifier: string;
+
+    @IsNotEmpty({ message: 'Type is required' })
+    @IsEnum(OtpType)
+    type: OtpType;
+}
+
+export class CancelOtpDto {
+    @IsNotEmpty({ message: 'Identifier is required' })
+    @IsString()
+    identifier: string;
+
+    @IsNotEmpty({ message: 'Type is required' })
+    @IsEnum(OtpType)
+    type: OtpType;
 }

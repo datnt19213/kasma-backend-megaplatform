@@ -2,17 +2,14 @@ import {
   Column,
   Entity,
   Index,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
+import { MultiTenantEntity } from './base/multi-tenant.entity';
 
 @Entity('Permission')
-@Index(['code'], { unique: true })
-export class Permission {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
-    @Column({ length: 150 })
-    code: string; // user.create, app.delete
+@Index(['permission_key'], { unique: true })
+export class Permission extends MultiTenantEntity {
+    @Column({ name: 'permission_key', length: 150 })
+    permission_key: string; // user.create, app.delete
 
     @Column({ length: 255 })
     description: string;

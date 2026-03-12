@@ -2,23 +2,15 @@ import {
   Column,
   Entity,
   Index,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
+import { MultiTenantEntity } from './base/multi-tenant.entity';
 
 @Entity('App')
 @Index(['app_key'], { unique: true })
-export class App {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
-    @Column()
-    app_key: string;
+export class App extends MultiTenantEntity {
 
     @Column()
     name: string;
-
-    @Column()
-    tenant_key: string;
 
     @Column({ default: true })
     is_active: boolean;

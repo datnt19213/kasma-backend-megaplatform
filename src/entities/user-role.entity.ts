@@ -1,18 +1,11 @@
 import {
   Column,
   Entity,
-  Index,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
+import { MultiTenantEntity } from './base/multi-tenant.entity';
 
 @Entity('UserRole')
-@Index(['user_id', 'role_id'], { unique: true })
-export class UserRole {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
-    @Column('uuid')
-    user_id: string;
+export class UserRole extends MultiTenantEntity {
 
     @Column('uuid')
     role_id: string;

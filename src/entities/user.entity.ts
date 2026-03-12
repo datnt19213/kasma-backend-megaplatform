@@ -1,9 +1,7 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   Index,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -12,11 +10,11 @@ import {
   UserType,
 } from '@/config/apps';
 
+import { MultiTenantEntity } from './base/multi-tenant.entity';
+
 @Entity('User')
 @Index(['email'], { unique: true })
-export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+export class User extends MultiTenantEntity {
 
   @Column({ length: 255 })
   email: string;
@@ -32,10 +30,4 @@ export class User {
 
   @Column({ default: false })
   is_locked: boolean;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
 }

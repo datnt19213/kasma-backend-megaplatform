@@ -13,11 +13,15 @@ import {
   UserType,
 } from '@/config/apps';
 import {
+  CancelOtpDto,
   LoginDto,
   RegisterDto,
+  ResendOtpDto,
+  VerifyOtpDto,
 } from '@/dto/auth.dto';
 import { AuditAuthLog } from '@/entities/audit-auth-log.entity';
 import { AuthSession } from '@/entities/auth-session.entity';
+import { OtpType } from '@/entities/otp.entity';
 import { UserCredential } from '@/entities/user-credential.entity';
 import { User } from '@/entities/user.entity';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -29,6 +33,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+
+import { OtpService } from './otp.service';
 
 interface JwtPayload {
   sub: string;
@@ -54,6 +60,7 @@ export class AuthService {
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
     private configService: ConfigService,
+    private otpService: OtpService,
   ) { }
 
   private generateOpaqueToken(): string {
@@ -147,9 +154,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (user.status !== UserStatus.ACTIVE || user.is_locked) {
-      await this.logAuthAction(user.id, 'LOGIN_FAILED', `user:${user.id}`, { reason: 'account_inactive_or_locked' });
-      throw new UnauthorizedException('Account is inactive or locked');
+    if (user.is_locked || user.status === UserStatus.SUSPENDED || user.status === UserStatus.DELETED) {
+      await this.logAuthAction(user.id, 'LOGIN_FAILED', `user:${user.id}`, { reason: 'account_locked_or_suspended' });
+      throw new UnauthorizedException('Account is locked or suspended');
     }
 
     const credential = await this.credentialRepository.findOne({
@@ -161,6 +168,124 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (user.status === UserStatus.PENDING) {
+      await this.otpService.createAndSendOtp(user.email, OtpType.REGISTER, user.id);
+      throw new UnauthorizedException({
+        success: false,
+        message: 'Email not verified. OTP sent to email.',
+        requiresOtp: true,
+        identifier: user.email,
+        type: OtpType.REGISTER,
+      });
+    }
+
+    // For strict OTP auth, we ALWAYS send OTP and throw Unauthorized with requiresOtp
+    await this.otpService.createAndSendOtp(user.email, OtpType.LOGIN, user.id);
+
+    throw new UnauthorizedException({
+      success: false,
+      message: 'Login requires OTP verification. OTP sent to email.',
+      requiresOtp: true,
+      identifier: user.email,
+      type: OtpType.LOGIN,
+    });
+  }
+
+  async register(dto: RegisterDto, ipAddress: string): Promise<{
+    user: { email: string; display_name: string | null };
+    message: string;
+  }> {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: dto.email } as any,
+    });
+
+    if (existingUser) {
+      await this.logAuthAction(null, 'REGISTER_FAILED', `email:${dto.email}`, { reason: 'email_exists' });
+      throw new ConflictException('Email already registered');
+    }
+
+    const hashedPassword = await this.hashPassword(dto.password);
+    const regData = {
+      email: dto.email,
+      password: hashedPassword,
+      display_name: dto.display_name,
+    };
+
+    // Store in cache for 10 minutes (using 600000ms as cache-manager v5+ uses milliseconds)
+    await this.cacheManager.set(`auth:reg:${dto.email}`, JSON.stringify(regData), 600000);
+
+    // Send OTP
+    await this.otpService.createAndSendOtp(dto.email, OtpType.REGISTER);
+
+    await this.logAuthAction(null, 'REGISTER_INITIATED', `email:${dto.email}`, { ip: ipAddress });
+
+    return {
+      user: {
+        email: dto.email,
+        display_name: dto.display_name || null,
+      },
+      message: 'OTP sent. Verify to complete registration.',
+    };
+  }
+
+  async verifyOtp(dto: VerifyOtpDto, ipAddress: string) {
+    let user = await this.userRepository.findOne({
+      where: { email: dto.identifier } as any,
+    });
+
+    let cachedDataJson: string | null = null;
+    if (!user && dto.type === OtpType.REGISTER) {
+      cachedDataJson = (await this.cacheManager.get(`auth:reg:${dto.identifier}`)) as string | null;
+      if (!cachedDataJson) {
+        throw new UnauthorizedException('Registration session expired. Please register again.');
+      }
+    }
+
+    const otp = await this.otpService.validateAndVerify(dto.identifier, dto.code, dto.type as any);
+
+    if (!otp) {
+      throw new UnauthorizedException('Invalid or expired OTP');
+    }
+
+    if (!user && dto.type === OtpType.REGISTER && cachedDataJson) {
+      const regData = JSON.parse(cachedDataJson);
+
+      user = this.userRepository.create({
+        email: regData.email,
+        display_name: regData.display_name || null,
+        user_type: UserType.GENERAL_0,
+        status: UserStatus.ACTIVE,
+        is_locked: false,
+      } as DeepPartial<User>);
+      user = await this.userRepository.save(user);
+
+      const profile = this.userProfileRepository.create({
+        user_id: user.id,
+      });
+      await this.userProfileRepository.save(profile);
+
+      const credential = this.credentialRepository.create({
+        user_id: user.id,
+        password: regData.password,
+        provider: 'local',
+        is_active: true,
+      } as DeepPartial<UserCredential>);
+      await this.credentialRepository.save(credential);
+
+      await this.cacheManager.del(`auth:reg:${dto.identifier}`);
+      await this.logAuthAction(user.id, 'REGISTER_SUCCESS', `user:${user.id}`, { ip: ipAddress });
+    }
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (user.status === UserStatus.PENDING as string && otp.type === OtpType.REGISTER) {
+      user.status = UserStatus.ACTIVE;
+      await this.userRepository.save(user);
+    }
+
+    // Login user after successful verification
     const jwtToken = this.createJwtToken(user);
     const accessToken = this.generateOpaqueToken();
     const refreshToken = this.generateOpaqueToken();
@@ -171,7 +296,7 @@ export class AuthService {
     await this.storeTokenMapping(accessToken, jwtToken, user.id, expiresAt);
     await this.storeTokenMapping(refreshToken, jwtToken, user.id, expiresAt);
     await this.createAuthSession(user.id, accessToken, refreshToken, ipAddress, expiresAt);
-    await this.logAuthAction(user.id, 'LOGIN_SUCCESS', `user:${user.id}`, { ip: ipAddress });
+    await this.logAuthAction(user.id, 'OTP_VERIFIED_LOGIN', `user:${user.id}`, { ip: ipAddress, type: dto.type });
 
     return {
       user: {
@@ -185,83 +310,44 @@ export class AuthService {
     };
   }
 
-  async register(dto: RegisterDto, ipAddress: string): Promise<{
-    user: { id: string; email: string; display_name: string | null; user_type: string };
-    accessToken?: string;
-    refreshToken?: string;
-  }> {
-    const existingUser = await this.userRepository.findOne({
-      where: { email: dto.email } as any,
+  async resendOtp(dto: ResendOtpDto) {
+    let user = await this.userRepository.findOne({
+      where: { email: dto.identifier } as any,
     });
 
-    if (existingUser) {
-      await this.logAuthAction(null, 'REGISTER_FAILED', `email:${dto.email}`, { reason: 'email_exists' });
-      throw new ConflictException('Email already registered');
-    }
+    // If registering, user might still be in cache
+    if (!user && dto.type === OtpType.REGISTER) {
+      const cachedData = await this.cacheManager.get(`auth:reg:${dto.identifier}`);
+      if (!cachedData) {
+        throw new UnauthorizedException('Registration session expired. Please register again.');
+      }
 
-    const user = this.userRepository.create({
-      email: dto.email,
-      display_name: dto.display_name || null,
-      user_type: UserType.GENERAL_0,
-      status: UserStatus.ACTIVE,
-      is_locked: false,
-    } as DeepPartial<User>);
-
-    const savedUser = await this.userRepository.save(user as User);
-
-    // Also create UserProfile in MongoDB
-    const profile = this.userProfileRepository.create({
-      user_id: savedUser.id,
-    });
-    await this.userProfileRepository.save(profile);
-
-    const hashedPassword = await this.hashPassword(dto.password);
-    const credential = this.credentialRepository.create({
-      user_id: savedUser.id,
-      password: hashedPassword,
-      provider: 'local',
-      is_active: true,
-    } as DeepPartial<UserCredential>);
-    await this.credentialRepository.save(credential as UserCredential);
-
-    await this.logAuthAction(savedUser.id, 'REGISTER_SUCCESS', `user:${savedUser.id}`, { ip: ipAddress });
-
-    if (dto.is_login_after_registration_success) {
-      const jwtToken = this.createJwtToken(savedUser);
-      const accessToken = this.generateOpaqueToken();
-      const refreshToken = this.generateOpaqueToken();
-
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 7);
-
-      await this.storeTokenMapping(accessToken, jwtToken, savedUser.id, expiresAt);
-      await this.storeTokenMapping(refreshToken, jwtToken, savedUser.id, expiresAt);
-      await this.createAuthSession(savedUser.id, accessToken, refreshToken, ipAddress, expiresAt);
-
-      await this.logAuthAction(savedUser.id, 'LOGIN_SUCCESS', `user:${savedUser.id}`, {
-        ip: ipAddress,
-        source: 'auto_login_after_registration',
-      });
-
-      return {
-        user: {
-          id: savedUser.id,
-          email: savedUser.email,
-          display_name: savedUser.display_name,
-          user_type: savedUser.user_type,
-        },
-        accessToken,
-        refreshToken,
-      };
+      // We don't have a user ID yet for cached registrations
+      await this.otpService.createAndSendOtp(dto.identifier, dto.type as any);
+    } else {
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+      // Standard flow for existing users
+      await this.otpService.createAndSendOtp(user.email, dto.type as any, user.id);
     }
 
     return {
-      user: {
-        id: savedUser.id,
-        email: savedUser.email,
-        display_name: savedUser.display_name,
-        user_type: savedUser.user_type,
-      },
+      success: true,
+      message: 'OTP resent successfully',
+    };
+  }
+
+  async cancelOtp(dto: CancelOtpDto) {
+    await this.otpService.cancelOtps(dto.identifier, dto.type as any);
+
+    if (dto.type === OtpType.REGISTER) {
+      await this.cacheManager.del(`auth:reg:${dto.identifier}`);
+    }
+
+    return {
+      success: true,
+      message: 'OTP cancelled and associated process rolled back successfully',
     };
   }
 

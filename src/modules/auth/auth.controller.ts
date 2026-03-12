@@ -2,9 +2,12 @@ import type { Response } from 'express';
 
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import {
+  CancelOtpDto,
   GetLoginLogsDto,
   LoginDto,
   RegisterDto,
+  ResendOtpDto,
+  VerifyOtpDto,
 } from '@/dto/auth.dto';
 import {
   Body,
@@ -85,23 +88,51 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   async register(
     @Body() dto: RegisterDto,
-    @Res({ passthrough: true }) res: Response,
     @Req() req: any,
   ) {
     const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
 
     const result = await this.authService.register(dto, ipAddress);
 
-    // Set cookies if auto-login
-    if (result.accessToken && result.refreshToken) {
-      this.setAuthCookies(res, result.accessToken, result.refreshToken);
-    }
+    return {
+      success: true,
+      user: result.user,
+      message: result.message,
+    };
+  }
+
+  @Post('verify-otp')
+  @HttpCode(HttpStatus.OK)
+  async verifyOtp(
+    @Body() dto: VerifyOtpDto,
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: any,
+  ) {
+    const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+    const result = await this.authService.verifyOtp(dto, ipAddress);
+
+    this.setAuthCookies(res, result.accessToken, result.refreshToken);
 
     return {
       success: true,
       user: result.user,
-      autoLoggedIn: !!result.accessToken,
     };
+  }
+
+  @Post('resend-otp')
+  @HttpCode(HttpStatus.OK)
+  async resendOtp(
+    @Body() dto: ResendOtpDto,
+  ) {
+    return await this.authService.resendOtp(dto);
+  }
+
+  @Post('cancel-otp')
+  @HttpCode(HttpStatus.OK)
+  async cancelOtp(
+    @Body() dto: CancelOtpDto,
+  ) {
+    return await this.authService.cancelOtp(dto);
   }
 
   @Post('refresh')

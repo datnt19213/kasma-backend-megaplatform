@@ -24,6 +24,13 @@ async function bootstrap() {
     },
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: 'Content-Type, Authorization, X-Tenant-Kasma-Id, X-App-Kasma-Id, X-Idempotency-Key',
+    /* 
+    Content-Type: type of content,
+    Authorization: Auth token
+    X-Tenant-Kasma-Id: the id of each tenant,
+    X-App-Kasma-Id: the id of each app in each tenant,
+    X-Idempotency-Key: the string uuid/string unique of each request to prevent duplicate requests
+    */
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,

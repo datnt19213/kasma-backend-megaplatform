@@ -2,24 +2,19 @@ import {
   Column,
   Entity,
   Index,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
+import { MultiTenantEntity } from './base/multi-tenant.entity';
 
 @Entity('Role')
-@Index(['code'], { unique: true })
-export class Role {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+@Index(['role_key'], { unique: true })
+export class Role extends MultiTenantEntity {
 
     @Column({ length: 100 })
     code: string; // ADMIN, KADMIN, MANAGER
 
-    @Column({ length: 255 })
-    name: string;
+    @Column({ name: 'role_key' })
+  role_key: string;
 
-    @Column({ default: false })
-    is_kasma_role: boolean;
-
-    @Column({ nullable: true })
-    description: string;
+  @Column({ name: 'display_name' })
+  display_name: string;
 }

@@ -1,17 +1,13 @@
 import {
   Column,
   Entity,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
 
+import { MultiTenantEntity } from './base/multi-tenant.entity';
+
 @Entity('UserTenantKey')
-export class UserTenantKey {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+export class UserTenantKey extends MultiTenantEntity {
 
-    @Column('uuid')
-    user_id: string;
-
-    @Column()
-    tenant_key: string;
+  @Column('uuid')
+  user_id: string;
 }
