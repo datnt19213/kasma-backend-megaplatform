@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt';
 import type { Cache } from 'cache-manager';
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
-import { UserProfile } from 'src/mongo-entities/user-profile.mongo-entity';
+import { UserProfile } from '@/entities/mongo/user-profile.mongo-entity';
 import {
   DeepPartial,
   Repository,

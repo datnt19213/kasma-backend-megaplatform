@@ -1,4 +1,5 @@
-import * as nodemailer from 'nodemailer';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { MailOtpHtml } from 'src/lib/mail.otp-html';
 
 import { convertCase } from '@/utils/convert-text';
@@ -7,19 +8,10 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailService {
-    private transporter: nodemailer.Transporter;
-
-    constructor(private configService: ConfigService) {
-        this.transporter = nodemailer.createTransport({
-            host: this.configService.get('MAIL_HOST'),
-            port: this.configService.get('MAIL_PORT'),
-            secure: this.configService.get('MAIL_SECURE') === 'true',
-            auth: {
-                user: this.configService.get('MAIL_USER'),
-                pass: this.configService.get('MAIL_PASS'),
-            },
-        });
-    }
+    constructor(
+        @InjectQueue('mail-queue') private mailQueue: Queue,
+        private configService: ConfigService
+    ) {}
 
     async sendOtpEmail(to: string, otp: string, type: string) {
         const fromEmail = this.configService.get('MAIL_FROM_EMAIL');
@@ -32,18 +24,12 @@ export class MailService {
         const subject = `[Kasma] Your verification code for ${convertCase(type, "title")}`;
         const html = MailOtpHtml(otp, convertCase(type, "title"));
 
-        try {
-            await this.transporter.sendMail({
-                from: `"${this.configService.get('MAIL_FROM_NAME') || 'Kasma'}" <${fromEmail}>`,
-                to,
-                subject,
-                html,
-            });
-            console.log(`Email sent to ${to} with OTP ${otp}`);
-        } catch (error) {
-            console.error('Error sending email:', error);
-            // In development, still log the OTP so we can proceed
-            console.log(`[DEV-FALLBACK] OTP for ${to}: ${otp}`);
-        }
+        // Push to BullMQ queue instead of awaiting the heavy nodemailer call
+        await this.mailQueue.add(
+            'send-otp',
+            { to, subject, html, otp, type },
+            { attempts: 3, backoff: { type: 'exponential', delay: 3000 } }
+        );
+        console.log(`[Queue] Added send-otp job for ${to}`);
     }
 }

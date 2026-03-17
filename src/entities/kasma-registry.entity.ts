@@ -8,13 +8,13 @@ import {
 } from 'typeorm';
 
 @Entity('KasmaRegistry')
-@Index(['app_key', 'tenant_key', 'module_key'], { unique: true })
+@Index(['app_family_key', 'tenant_key', 'module_key'], { unique: true })
 export class KasmaRegistry {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  app_key: string;
+  app_family_key: string;
 
   @Column()
   tenant_key: string;

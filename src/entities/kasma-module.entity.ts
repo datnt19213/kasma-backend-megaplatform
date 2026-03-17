@@ -20,6 +20,9 @@ export class KasmaModule {
   @Column({ nullable: true })
   description: string;
 
+  @Column('simple-array', { nullable: true, default: [] })
+  dependencies: string[];
+
   @CreateDateColumn()
   created_at: Date;
 

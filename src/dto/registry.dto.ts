@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsBoolean,
   IsNotEmpty,
   IsOptional,
@@ -17,12 +18,17 @@ export class CreateModuleDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  dependencies?: string[];
 }
 
 export class CreateRegistryDto {
   @IsNotEmpty()
   @IsString()
-  app_key: string;
+  app_family_key: string;
 
   @IsNotEmpty()
   @IsString()

@@ -39,10 +39,10 @@ export class RegistryController {
 
   @Get()
   async listRegistries(
-    @Query('app_key') appKey?: string,
+    @Query('app_family_key') appFamilyKey?: string,
     @Query('tenant_key') tenantKey?: string,
   ) {
-    const registries = await this.registryService.findAllRegistries(appKey, tenantKey);
+    const registries = await this.registryService.findAllRegistries(appFamilyKey, tenantKey);
     return { success: true, registries };
   }
 

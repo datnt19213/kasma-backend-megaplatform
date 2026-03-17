@@ -3,13 +3,15 @@ import { DatabaseModule } from '@/database/database.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { UserModule } from '@/modules/user/user.module';
 import { RegistryModule } from '@/modules/registry/registry.module';
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { RegistryGuard } from '@/common/guards/registry.guard';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
@@ -19,9 +21,20 @@ import { AppService } from './app.service';
       load: [authConfig],
     }),
     DatabaseModule,
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('REDIS_HOST', 'localhost'),
+          port: configService.get('REDIS_PORT', 6379),
+        },
+      }),
+      inject: [ConfigService],
+    }),
     AuthModule,
     UserModule,
     RegistryModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [

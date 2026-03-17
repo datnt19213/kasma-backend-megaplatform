@@ -1,4 +1,4 @@
-import { UserProfile } from 'src/mongo-entities/user-profile.mongo-entity';
+import { UserProfile } from '@/entities/mongo/user-profile.mongo-entity';
 
 import { Role } from '@/entities/role.entity';
 import { UserCredential } from '@/entities/user-credential.entity';

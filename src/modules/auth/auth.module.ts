@@ -3,11 +3,10 @@ import { AuthSession } from '@/entities/auth-session.entity';
 import { Otp } from '@/entities/otp.entity';
 import { UserCredential } from '@/entities/user-credential.entity';
 import { User } from '@/entities/user.entity';
-import { UserProfile } from '@/mongo-entities/user-profile.mongo-entity';
+import { UserProfile } from '@/entities/mongo/user-profile.mongo-entity';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { MailService } from '../mail/mail.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { OtpService } from './otp.service';
@@ -18,7 +17,7 @@ import { OtpService } from './otp.service';
     TypeOrmModule.forFeature([UserProfile], 'mongo'),
   ],
   controllers: [AuthController],
-  providers: [AuthService, OtpService, MailService],
+  providers: [AuthService, OtpService],
   exports: [AuthService, OtpService],
 })
 export class AuthModule { }

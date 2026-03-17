@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { UserProfile } from 'src/mongo-entities/user-profile.mongo-entity';
+import { UserProfile } from '@/entities/mongo/user-profile.mongo-entity';
 import {
   DeepPartial,
   Repository,
