@@ -12,6 +12,7 @@ import { RegistryGuard } from '@/common/guards/registry.guard';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MailModule } from '../mail/mail.module';
+import { EcommerceModule } from '../ecommerce/ecommerce.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { MailModule } from '../mail/mail.module';
     UserModule,
     RegistryModule,
     MailModule,
+    EcommerceModule,
   ],
   controllers: [AppController],
   providers: [
