@@ -22,6 +22,19 @@ export class ProductDetail {
   specifications: Record<string, any>;
 
   @Column({ type: 'json', nullable: true })
+  attributes: { name: string, values: string[] }[];
+
+  @Column({ type: 'json', nullable: true })
+  media: { 
+    url: string, 
+    type: string, 
+    is_main: boolean, 
+    variant_id?: string,
+    sort_order?: number,
+    metadata?: Record<string, any>
+  }[];
+
+  @Column({ type: 'json', nullable: true })
   metadata: Record<string, any>;
 
   @CreateDateColumn()

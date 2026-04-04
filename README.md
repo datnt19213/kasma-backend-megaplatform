@@ -61,6 +61,14 @@ graph TD
 - **Tenant Management**: Organization/Tenant isolation and specialized access keys.
 - **Permission System**: Dynamic role and permission mapping for fine-grained access control.
 
+### 🛒 Ecommerce & Sales Management
+
+- **Product Catalog**: Full CRUD for products with hybrid storage synchronization (Postgres for core, MongoDB for rich content).
+- **Categories & Tags**: Hierarchical organization and flexible tagging systems.
+- **Sales Operations**: Complete shopping cart, wishlist, and order management workflows.
+- **Subscription & Pre-orders**: Support for recurring plans and early product reservations.
+- **Advanced Search**: Powerful filtering by search terms, categories, tags, price range, and status.
+
 ### 🛠️ Developer Experience
 
 - **Swagger Documentation**: (Optional) Integrated API documentation for easy exploration.
@@ -91,9 +99,11 @@ src/
 ├── config/          # Application and environment configurations
 ├── database/        # Database connection and module setup
 ├── dto/             # Data Transfer Objects
-├── entities/        # TypeORM entities (PostgreSQL)
-├── mongo-entities/  # MongoDB entities
-├── modules/         # Core business logic (divided into features like Auth, User, App)
+├── entities/        # Primary entities (Ecommerce, Sales, IAM - PostgreSQL)
+│   ├── ecommerce/
+│   └── sales/
+├── entities/mongo/  # MongoDB entities (Product Details, Cart, Wishlist)
+├── modules/         # Core business logic (Auth, User, Ecommerce, Sales)
 ├── shared/          # Shared utilities and services
 └── main.ts          # Application entry point
 ```
