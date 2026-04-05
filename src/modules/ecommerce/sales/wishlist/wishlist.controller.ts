@@ -15,7 +15,7 @@ import { WishlistService } from './wishlist.service';
 export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
 
-  @Get('my-wishlist')
+  @Get('me')
   async getWishlist(@Req() req: any) {
     const userId = req.user.sub;
     return this.wishlistService.getWishlist(userId);

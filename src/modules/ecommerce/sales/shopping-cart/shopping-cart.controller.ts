@@ -17,7 +17,7 @@ import { AddToCartDto, UpdateCartItemDto } from '@/dto/sales-dto/sales.dto';
 export class ShoppingCartController {
   constructor(private readonly cartService: ShoppingCartService) {}
 
-  @Get('my-cart')
+  @Get('me')
   async getCart(@Req() req: any) {
     const userId = req.user.sub;
     return this.cartService.getCart(userId);

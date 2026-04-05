@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
+import { Repository, DataSource, In } from 'typeorm';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 import { Order, OrderStatus } from '@/entities/sales/order.entity';
 import { OrderItem } from '@/entities/sales/order-item.entity';
@@ -20,6 +22,8 @@ export class OrderManagementService {
     @InjectRepository(ShoppingCart, 'mongo')
     private readonly cartRepo: Repository<ShoppingCart>,
     private readonly dataSource: DataSource,
+    @InjectQueue('sales-queue') private readonly salesQueue: Queue,
+    @InjectQueue('marketing-queue') private readonly marketingQueue: Queue,
   ) {}
 
   async createOrderFromCart(userId: string, dto: CreateOrderDto) {
@@ -95,9 +99,23 @@ export class OrderManagementService {
 
       // 4. Clear Cart
       cart.items = [];
-      await this.cartRepo.save(cart);
+      const savedCart = await this.cartRepo.save(cart);
+
+      // Dispatch Abandoned Cart Notification Job (delayed by 1 hour)
+      await this.marketingQueue.add(
+        'abandoned-cart-notification',
+        { userId, items: cart.items },
+        { delay: 3600000, jobId: `abandoned-cart-${userId}` } // 1 hour delay, unique per user
+      );
 
       await queryRunner.commitTransaction();
+
+      // Dispatch Background Jobs
+      for (const order of createdOrders) {
+        await this.salesQueue.add('order-confirmation', { orderId: order.id, userId });
+        await this.salesQueue.add('stock-sync', { orderId: order.id });
+      }
+
       return { success: true, orders: createdOrders };
     } catch (err) {
       await queryRunner.rollbackTransaction();

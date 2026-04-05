@@ -5,6 +5,7 @@ import { UserModule } from '@/modules/user/user.module';
 import { RegistryModule } from '@/modules/registry/registry.module';
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { RegistryGuard } from '@/common/guards/registry.guard';
@@ -32,11 +33,27 @@ import { EcommerceModule } from '../ecommerce/ecommerce.module';
       }),
       inject: [ConfigService],
     }),
+    BullModule.registerQueue(
+      { name: 'mail-queue' },
+      { name: 'sales-queue' },
+      { name: 'marketing-queue' },
+    ),
     AuthModule,
     UserModule,
     RegistryModule,
     MailModule,
     EcommerceModule,
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        store: 'redis',
+        host: configService.get('REDIS_HOST', 'localhost'),
+        port: configService.get('REDIS_PORT', 6379),
+        ttl: 600, // 10 minutes default
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AppController],
   providers: [

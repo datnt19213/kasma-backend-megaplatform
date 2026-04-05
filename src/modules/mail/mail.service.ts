@@ -1,6 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { MailOtpHtml } from 'src/lib/mail.otp-html';
+import { MailOtpHtml } from '@/lib/mail.otp-html';
 
 import { convertCase } from '@/utils/convert-text';
 import { Injectable } from '@nestjs/common';

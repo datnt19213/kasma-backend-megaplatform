@@ -1,0 +1,188 @@
+{
+	"info": {
+		"_postman_id": "kasma-mega-platform-absolute-coverage",
+		"name": "KASMA MEGA PLATFORM - COMPLETE API",
+		"description": "100% Comprehensive API collection for all Kasma Mega Platform Backend modules.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "0. SYSTEM",
+			"item": [
+				{ "name": "App Root", "request": { "method": "GET", "url": "{{base_url}}/" } },
+				{ "name": "Health Check", "request": { "method": "GET", "url": "{{base_url}}/health" } }
+			]
+		},
+		{
+			"name": "1. IDENTITY & AUTH",
+			"item": [
+				{ "name": "Login", "request": { "method": "POST", "url": "{{base_url}}/auth/login", "body": { "mode": "raw", "raw": "{\"identifier\": \"admin@kasma.com\", \"password\": \"string\"}" } } },
+				{ "name": "Register", "request": { "method": "POST", "url": "{{base_url}}/auth/register", "body": { "mode": "raw", "raw": "{\"email\": \"user@example.com\", \"password\": \"string\", \"display_name\": \"User\"}" } } },
+				{ "name": "Verify OTP", "request": { "method": "POST", "url": "{{base_url}}/auth/verify-otp", "body": { "mode": "raw", "raw": "{\"identifier\": \"user@example.com\", \"code\": \"123456\", \"type\": \"REGISTER\"}" } } },
+				{ "name": "Resend OTP", "request": { "method": "POST", "url": "{{base_url}}/auth/resend-otp", "body": { "mode": "raw", "raw": "{\"identifier\": \"user@example.com\", \"type\": \"REGISTER\"}" } } },
+				{ "name": "Cancel OTP", "request": { "method": "POST", "url": "{{base_url}}/auth/cancel-otp" } },
+				{ "name": "Refresh Token", "request": { "method": "POST", "url": "{{base_url}}/auth/refresh" } },
+				{ "name": "Logout", "request": { "method": "POST", "url": "{{base_url}}/auth/logout" } },
+				{ "name": "Logout All Sessions", "request": { "method": "POST", "url": "{{base_url}}/auth/logout-all" } },
+				{ "name": "Get Auth Me (JWT Payload)", "request": { "method": "GET", "url": "{{base_url}}/auth/me" } },
+				{ "name": "Get Login Logs", "request": { "method": "GET", "url": { "raw": "{{base_url}}/auth/logs/login?page=1&limit=20", "host": ["{{base_url}}"], "path": ["auth", "logs", "login"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "20" }] } } }
+			]
+		},
+		{
+			"name": "2. USERS",
+			"item": [
+				{ "name": "Get My Profile", "request": { "method": "GET", "url": "{{base_url}}/users/me" } },
+				{ "name": "Update My Profile", "request": { "method": "POST", "url": "{{base_url}}/users/me/update", "body": { "mode": "raw", "raw": "{\"display_name\": \"Updated Name\"}" } } },
+				{ "name": "Change My Password", "request": { "method": "POST", "url": "{{base_url}}/users/me/change-password", "body": { "mode": "raw", "raw": "{\"oldPassword\": \"...\", \"newPassword\": \"...\"}" } } },
+				{ "name": "Admin: List Users", "request": { "method": "GET", "url": "{{base_url}}/users" } },
+				{ "name": "Admin: Get User By ID", "request": { "method": "GET", "url": "{{base_url}}/users/{{user_id}}" } },
+				{ "name": "Admin: Update User", "request": { "method": "POST", "url": "{{base_url}}/users/{{user_id}}/update", "body": { "mode": "raw", "raw": "{\"status\": \"ACTIVE\", \"is_locked\": false}" } } },
+				{ "name": "Admin: Delete User", "request": { "method": "POST", "url": "{{base_url}}/users/{{user_id}}/delete" } },
+				{ "name": "Admin: Get User Roles", "request": { "method": "GET", "url": "{{base_url}}/users/{{user_id}}/roles" } },
+				{ "name": "Admin: Assign Role", "request": { "method": "POST", "url": "{{base_url}}/users/{{user_id}}/roles/assign", "body": { "mode": "raw", "raw": "{\"role_id\": \"...\"}" } } },
+				{ "name": "Admin: Remove Role", "request": { "method": "POST", "url": "{{base_url}}/users/{{user_id}}/roles/remove", "body": { "mode": "raw", "raw": "{\"role_id\": \"...\"}" } } }
+			]
+		},
+		{
+			"name": "3. REGISTRY",
+			"item": [
+				{ "name": "List Modules", "request": { "method": "GET", "url": "{{base_url}}/registry/modules" } },
+				{ "name": "Register Module", "request": { "method": "POST", "url": "{{base_url}}/registry/modules", "body": { "mode": "raw", "raw": "{\"name\": \"module_name\", \"display_name\": \"...\"}" } } },
+				{ "name": "List All Registries", "request": { "method": "GET", "url": "{{base_url}}/registry" } },
+				{ "name": "Create Registry", "request": { "method": "POST", "url": "{{base_url}}/registry" } },
+				{ "name": "Update Registry", "request": { "method": "POST", "url": "{{base_url}}/registry/{{registry_id}}/update" } }
+			]
+		},
+		{
+			"name": "4. PRODUCT CATALOG",
+			"item": [
+				{ "name": "List Products", "request": { "method": "GET", "url": "{{base_url}}/ecommerce/products/list" } },
+				{ "name": "Product Details", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/details", "body": { "mode": "raw", "raw": "{\"id\": \"{{product_id}}\"}" } } },
+				{ "name": "Create Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/create" } },
+				{ "name": "Update Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/update" } },
+				{ "name": "Delete Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/delete" } },
+				{ "name": "List Categories", "request": { "method": "GET", "url": "{{base_url}}/ecommerce/products/categories" } },
+				{ "name": "Compare Products", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/compare" } },
+				{ "name": "Generate XML Feed", "request": { "method": "GET", "url": "{{base_url}}/ecommerce/products/feed" } }
+			]
+		},
+		{
+			"name": "5. SALES",
+			"item": [
+				{
+					"name": "Shopping Cart",
+					"item": [
+						{ "name": "Get My Cart", "request": { "method": "GET", "url": "{{base_url}}/sales/cart/me" } },
+						{ "name": "Add to Cart", "request": { "method": "POST", "url": "{{base_url}}/sales/cart/add", "body": { "mode": "raw", "raw": "{\"productId\": \"...\", \"quantity\": 1}" } } },
+						{ "name": "Update Cart Item", "request": { "method": "POST", "url": "{{base_url}}/sales/cart/update" } },
+						{ "name": "Remove from Cart", "request": { "method": "POST", "url": "{{base_url}}/sales/cart/remove" } },
+						{ "name": "Clear My Cart", "request": { "method": "POST", "url": "{{base_url}}/sales/cart/clear" } },
+						{ "name": "Cart Summary (Totals)", "request": { "method": "GET", "url": "{{base_url}}/sales/cart/summary" } }
+					]
+				},
+				{
+					"name": "Order Management",
+					"item": [
+						{ "name": "Get My Orders", "request": { "method": "GET", "url": "{{base_url}}/sales/orders/me" } },
+						{ "name": "Checkout Order", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/checkout", "body": { "mode": "raw", "raw": "{\"shippingAddress\": \"...\", \"paymentMethod\": \"STRIPE\"}" } } },
+						{ "name": "Order Details", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/details" } },
+						{ "name": "Update Status (Admin)", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/update-status" } },
+						{ "name": "Cancel Order", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/cancel" } }
+					]
+				},
+				{
+					"name": "Wishlist",
+					"item": [
+						{ "name": "Get My Wishlist", "request": { "method": "GET", "url": "{{base_url}}/sales/wishlist/me" } },
+						{ "name": "Add to Wishlist", "request": { "method": "POST", "url": "{{base_url}}/sales/wishlist/add" } },
+						{ "name": "Remove from Wishlist", "request": { "method": "POST", "url": "{{base_url}}/sales/wishlist/remove" } }
+					]
+				},
+				{
+					"name": "Subscriptions & Pre-orders",
+					"item": [
+						{ "name": "Get My Subscriptions", "request": { "method": "GET", "url": "{{base_url}}/sales/subscriptions/me" } },
+						{ "name": "Create Subscription", "request": { "method": "POST", "url": "{{base_url}}/sales/subscriptions/create" } },
+						{ "name": "Cancel Subscription", "request": { "method": "POST", "url": "{{base_url}}/sales/subscriptions/cancel" } },
+						{ "name": "Get My Pre-orders", "request": { "method": "GET", "url": "{{base_url}}/sales/pre-orders/me" } },
+						{ "name": "Create Pre-order", "request": { "method": "POST", "url": "{{base_url}}/sales/pre-orders/create" } }
+					]
+				}
+			]
+		},
+		{
+			"name": "6. MARKETING",
+			"item": [
+				{
+					"name": "Promotion Engine",
+					"item": [
+						{ "name": "List Promotions", "request": { "method": "GET", "url": "{{base_url}}/marketing/promotions/list" } },
+						{ "name": "Promotion Details", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/details" } },
+						{ "name": "Create Promotion", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/create" } },
+						{ "name": "Update Promotion", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/update" } },
+						{ "name": "Remove Promotion", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/remove" } }
+					]
+				},
+				{
+					"name": "Coupons",
+					"item": [
+						{ "name": "List Coupons", "request": { "method": "GET", "url": "{{base_url}}/marketing/coupons/list" } },
+						{ "name": "Validate Coupon", "request": { "method": "POST", "url": "{{base_url}}/marketing/coupons/validate", "body": { "mode": "raw", "raw": "{\"code\": \"SUMMER2026\"}" } } },
+						{ "name": "Create Coupon", "request": { "method": "POST", "url": "{{base_url}}/marketing/coupons/create" } },
+						{ "name": "Update Coupon", "request": { "method": "POST", "url": "{{base_url}}/marketing/coupons/update" } },
+						{ "name": "Remove Coupon", "request": { "method": "POST", "url": "{{base_url}}/marketing/coupons/remove" } }
+					]
+				},
+				{
+					"name": "Loyalty",
+					"item": [
+						{ "name": "List Tiers", "request": { "method": "GET", "url": "{{base_url}}/marketing/loyalty/tiers/list" } },
+						{ "name": "My Points Balance", "request": { "method": "GET", "url": "{{base_url}}/marketing/loyalty/me/balance" } },
+						{ "name": "My History", "request": { "method": "GET", "url": "{{base_url}}/marketing/loyalty/me/history" } },
+						{ "name": "Add Points (Admin)", "request": { "method": "POST", "url": "{{base_url}}/marketing/loyalty/points/add" } },
+						{ "name": "Create Tier (Admin)", "request": { "method": "POST", "url": "{{base_url}}/marketing/loyalty/tiers/create" } }
+					]
+				},
+				{
+					"name": "Affiliate & Referral",
+					"item": [
+						{ "name": "List Programs", "request": { "method": "GET", "url": "{{base_url}}/marketing/affiliate/program/list" } },
+						{ "name": "My Affiliate Links", "request": { "method": "GET", "url": "{{base_url}}/marketing/affiliate/me/links" } },
+						{ "name": "Create Program (Admin)", "request": { "method": "POST", "url": "{{base_url}}/marketing/affiliate/program/create" } },
+						{ "name": "Create Link", "request": { "method": "POST", "url": "{{base_url}}/marketing/affiliate/link/create" } },
+						{ "name": "Lookup Code", "request": { "method": "POST", "url": "{{base_url}}/marketing/affiliate/link/lookup" } }
+					]
+				},
+				{
+					"name": "Abandoned Cart",
+					"item": [
+						{ "name": "List Abandoned (Admin)", "request": { "method": "GET", "url": "{{base_url}}/marketing/abandoned-cart/list" } },
+						{ "name": "Trigger Tracking", "request": { "method": "POST", "url": "{{base_url}}/marketing/abandoned-cart/track" } },
+						{ "name": "Mark Recovered", "request": { "method": "POST", "url": "{{base_url}}/marketing/abandoned-cart/status/recovered" } }
+					]
+				},
+				{
+					"name": "Product Bundles",
+					"item": [
+						{ "name": "List Bundles", "request": { "method": "GET", "url": "{{base_url}}/marketing/bundles/list" } },
+						{ "name": "Bundle Details", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/details" } },
+						{ "name": "Create Bundle", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/create" } },
+						{ "name": "Update Bundle", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/update" } },
+						{ "name": "Remove Bundle", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/remove" } }
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+	},
+	"variable": [
+		{ "key": "base_url", "value": "http://localhost:3000" },
+		{ "key": "auth_token", "value": "your_jwt_token_here" },
+		{ "key": "user_id", "value": "..." },
+		{ "key": "product_id", "value": "..." },
+		{ "key": "registry_id", "value": "..." }
+	]
+}

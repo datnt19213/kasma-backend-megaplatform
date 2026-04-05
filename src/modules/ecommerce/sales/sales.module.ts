@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bullmq';
 
 import { Order } from '@/entities/sales/order.entity';
 import { OrderItem } from '@/entities/sales/order-item.entity';
@@ -18,6 +19,8 @@ import { WishlistController } from './wishlist/wishlist.controller';
 import { WishlistService } from './wishlist/wishlist.service';
 import { RecurringService, PreOrderService } from './recurring-preorder.service';
 import { SubscriptionController, PreOrderController } from './recurring-preorder.controller';
+import { SalesProcessor } from './sales.processor';
+import { type Cache } from 'cache-manager';
 
 @Module({
   imports: [
@@ -33,6 +36,10 @@ import { SubscriptionController, PreOrderController } from './recurring-preorder
       ShoppingCart,
       Wishlist,
     ], 'mongo'),
+    BullModule.registerQueue(
+      { name: 'sales-queue' },
+      { name: 'marketing-queue' },
+    ),
   ],
   controllers: [
     ShoppingCartController,
@@ -47,6 +54,7 @@ import { SubscriptionController, PreOrderController } from './recurring-preorder
     WishlistService,
     RecurringService,
     PreOrderService,
+    SalesProcessor,
   ],
   exports: [
     ShoppingCartService,

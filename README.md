@@ -41,6 +41,7 @@ graph TD
   - **PostgreSQL**: Structured primary data (Users, Tenants, Roles).
   - **MongoDB**: Flexible data requirements and audit logging.
   - **Redis**: Low-latency caching for performance optimization.
+- **Background Processing**: Leveraging **BullMQ** for reliable, asynchronous task execution (Email notifications, stock synchronization, abandoned cart recovery).
 - **Multi-Tenancy**: Built-in support for tenant isolation via headers (`X-Tenant-Kasma-Id`).
 - **RBAC (Role-Based Access Control)**: Granular permission management across different user roles.
 
@@ -68,6 +69,21 @@ graph TD
 - **Sales Operations**: Complete shopping cart, wishlist, and order management workflows.
 - **Subscription & Pre-orders**: Support for recurring plans and early product reservations.
 - **Advanced Search**: Powerful filtering by search terms, categories, tags, price range, and status.
+
+### 📢 Marketing & Growth
+- **Promotion Engine**: Advanced discount rules including B1G1, Flash Sales, and fixed/percentage discounts.
+- **Coupon Management**: Flexible voucher system with usage limits, activation dates, and minimum order requirements.
+- **Loyalty & Membership**: Tier-based membership system with points earning/redemption history.
+- **Affiliate & Referral**: Program management with unique affiliate link generation and tracking.
+- **Abandoned Cart Recovery**: Automated tracking of inactive carts (MongoDB) and scheduled background notification jobs (BullMQ) to improve conversion rates.
+- **Product Bundling**: Create and manage product combos with specialized pricing.
+
+### ⚡ Performance & Scalability
+- **Redis Caching**: High-speed caching for expensive computation/lookups (e.g., Coupon validation, Promotion lists).
+- **Asynchronous Workers**: Offloading heavy operations to dedicated workers (Order confirmation, inventory sync, marketing notifications).
+
+### 🛣️ API Standardization
+- **User-Centric Routes**: Modern `/me` prefix for all user-specific resources (e.g., `/sales/orders/me`, `/sales/cart/me`) replacing legacy `my-*` prefixes.
 
 ### 🛠️ Developer Experience
 
@@ -99,11 +115,12 @@ src/
 ├── config/          # Application and environment configurations
 ├── database/        # Database connection and module setup
 ├── dto/             # Data Transfer Objects
-├── entities/        # Primary entities (Ecommerce, Sales, IAM - PostgreSQL)
+├── entities/        # Primary entities (Ecommerce, Sales, Marketing, IAM - PostgreSQL)
 │   ├── ecommerce/
-│   └── sales/
-├── entities/mongo/  # MongoDB entities (Product Details, Cart, Wishlist)
-├── modules/         # Core business logic (Auth, User, Ecommerce, Sales)
+│   ├── sales/
+│   └── marketing/
+├── entities/mongo/  # MongoDB entities (Product Details, Cart, Wishlist, Abandoned Cart)
+├── modules/         # Core business logic (Auth, User, Ecommerce, Sales, Marketing)
 ├── shared/          # Shared utilities and services
 └── main.ts          # Application entry point
 ```

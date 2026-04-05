@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 import { ShoppingCart } from '@/entities/mongo/shopping-cart.mongo-entity';
 import { Product } from '@/entities/ecommerce/product.entity';
@@ -16,6 +18,7 @@ export class ShoppingCartService {
     private readonly productRepo: Repository<Product>,
     @InjectRepository(ProductVariant, 'postgres')
     private readonly variantRepo: Repository<ProductVariant>,
+    @InjectQueue('marketing-queue') private readonly marketingQueue: Queue,
   ) {}
 
   async getCart(userId: string): Promise<ShoppingCart> {
@@ -55,7 +58,17 @@ export class ShoppingCartService {
       });
     }
 
-    return this.cartRepo.save(cart);
+    const savedCart = await this.cartRepo.save(cart);
+
+    // Dispatch Abandoned Cart Notification Job (delayed by 1 hour)
+    // In a real scenario, we'd remove previous pending jobs for this user
+    await this.marketingQueue.add(
+      'abandoned-cart-notification',
+      { userId, items: cart.items },
+      { delay: 3600000, jobId: `abandoned-cart-${userId}` } // 1 hour delay, unique per user
+    );
+
+    return savedCart;
   }
 
   async updateCartItem(userId: string, dto: UpdateCartItemDto) {
@@ -71,7 +84,16 @@ export class ShoppingCartService {
       cart.items = cart.items.filter((i) => i !== item);
     }
 
-    return this.cartRepo.save(cart);
+    const savedCart = await this.cartRepo.save(cart);
+
+    // Update/Reset Abandoned Cart Job
+    await this.marketingQueue.add(
+      'abandoned-cart-notification',
+      { userId, items: cart.items },
+      { delay: 3600000, jobId: `abandoned-cart-${userId}` }
+    );
+
+    return savedCart;
   }
 
   async removeFromCart(userId: string, productId: string, variantId?: string) {

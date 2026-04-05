@@ -16,7 +16,7 @@ import { CreateSubscriptionDto } from '@/dto/sales-dto/sales.dto';
 export class SubscriptionController {
   constructor(private readonly recurringService: RecurringService) {}
 
-  @Get('my-subscriptions')
+  @Get('me')
   async getMySubscriptions(@Req() req: any) {
     const userId = req.user.sub;
     return this.recurringService.getMySubscriptions(userId);
@@ -39,7 +39,7 @@ export class SubscriptionController {
 export class PreOrderController {
   constructor(private readonly preOrderService: PreOrderService) {}
 
-  @Get('my-pre-orders')
+  @Get('me')
   async getMyPreOrders(@Req() req: any) {
     const userId = req.user.sub;
     return this.preOrderService.getMyPreOrders(userId);

@@ -17,7 +17,7 @@ import { OrderStatus } from '@/entities/sales/order.entity';
 export class OrderManagementController {
   constructor(private readonly orderService: OrderManagementService) {}
 
-  @Get('my-orders')
+  @Get('me')
   async getMyOrders(@Req() req: any) {
     const userId = req.user.sub;
     return this.orderService.getMyOrders(userId);

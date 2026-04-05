@@ -11,6 +11,8 @@ import { ProductCatalogController } from './product-catalog/product-catalog.cont
 import { ProductCatalogService } from './product-catalog/product-catalog.service';
 import { SalesModule } from './sales/sales.module';
 
+import { MarketingModule } from './marketing/marketing.module';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -23,9 +25,10 @@ import { SalesModule } from './sales/sales.module';
       ProductDetail,
     ], 'mongo'),
     SalesModule,
+    MarketingModule,
   ],
   controllers: [ProductCatalogController],
   providers: [ProductCatalogService],
-  exports: [ProductCatalogService, SalesModule],
+  exports: [ProductCatalogService, SalesModule, MarketingModule],
 })
 export class EcommerceModule { }
