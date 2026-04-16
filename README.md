@@ -78,6 +78,13 @@ graph TD
 - **Abandoned Cart Recovery**: Automated tracking of inactive carts (MongoDB) and scheduled background notification jobs (BullMQ) to improve conversion rates.
 - **Product Bundling**: Create and manage product combos with specialized pricing.
 
+### 📦 Logistics & Warehouse Management
+- **Inventory Control**: Real-time stock tracking with multi-warehouse support and adjustment logs.
+- **Inventory Buffer**: MongoDB-based virtual stock rules to prevent over-selling.
+- **Shipping & Zones**: Geographic-based shipping calculation and weight-based rules.
+- **Fulfillment**: Granular picking, packing, and labeling workflow with carrier integration (GHTK, GHN, etc.).
+- **Procurement & PO**: Purchase order management from draft to received status.
+
 ### ⚡ Performance & Scalability
 - **Redis Caching**: High-speed caching for expensive computation/lookups (e.g., Coupon validation, Promotion lists).
 - **Asynchronous Workers**: Offloading heavy operations to dedicated workers (Order confirmation, inventory sync, marketing notifications).
@@ -115,12 +122,13 @@ src/
 ├── config/          # Application and environment configurations
 ├── database/        # Database connection and module setup
 ├── dto/             # Data Transfer Objects
-├── entities/        # Primary entities (Ecommerce, Sales, Marketing, IAM - PostgreSQL)
+├── entities/        # Primary entities (Ecommerce, Sales, Marketing, Logistics, IAM - PostgreSQL)
 │   ├── ecommerce/
 │   ├── sales/
-│   └── marketing/
-├── entities/mongo/  # MongoDB entities (Product Details, Cart, Wishlist, Abandoned Cart)
-├── modules/         # Core business logic (Auth, User, Ecommerce, Sales, Marketing)
+│   ├── marketing/
+│   └── logistics/
+├── entities/mongo/  # MongoDB entities (Product Details, Cart, Wishlist, Abandoned Cart, Inventory Buffer, Warehouse Layout, Carrier Config)
+├── modules/         # Core business logic (Auth, User, Ecommerce, Sales, Marketing, Logistics)
 ├── shared/          # Shared utilities and services
 └── main.ts          # Application entry point
 ```

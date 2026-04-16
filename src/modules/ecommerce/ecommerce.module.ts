@@ -12,6 +12,7 @@ import { ProductCatalogService } from './product-catalog/product-catalog.service
 import { SalesModule } from './sales/sales.module';
 
 import { MarketingModule } from './marketing/marketing.module';
+import { LogisticsModule } from './logistics/logistics.module';
 
 @Module({
   imports: [
@@ -26,9 +27,10 @@ import { MarketingModule } from './marketing/marketing.module';
     ], 'mongo'),
     SalesModule,
     MarketingModule,
+    LogisticsModule,
   ],
   controllers: [ProductCatalogController],
   providers: [ProductCatalogService],
-  exports: [ProductCatalogService, SalesModule, MarketingModule],
+  exports: [ProductCatalogService, SalesModule, MarketingModule, LogisticsModule],
 })
 export class EcommerceModule { }

@@ -50,7 +50,7 @@
 				{ "name": "Register Module", "request": { "method": "POST", "url": "{{base_url}}/registry/modules", "body": { "mode": "raw", "raw": "{\"name\": \"module_name\", \"display_name\": \"...\"}" } } },
 				{ "name": "List All Registries", "request": { "method": "GET", "url": "{{base_url}}/registry" } },
 				{ "name": "Create Registry", "request": { "method": "POST", "url": "{{base_url}}/registry" } },
-				{ "name": "Update Registry", "request": { "method": "POST", "url": "{{base_url}}/registry/{{registry_id}}/update" } }
+				{ "name": "Update Registry", "request": { "method": "POST", "url": "{{base_url}}/api/registry/{{registry_id}}/update" } }
 			]
 		},
 		{
@@ -172,6 +172,46 @@
 					]
 				}
 			]
+		},
+		{
+			"name": "7. LOGISTICS",
+			"item": [
+				{
+					"name": "Inventory",
+					"item": [
+						{ "name": "Create Warehouse", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/warehouse/create", "body": { "mode": "raw", "raw": "{\"name\": \"Central Warehouse\", \"city\": \"Hanoi\"}" } } },
+						{ "name": "Adjust Stock", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/adjust", "body": { "mode": "raw", "raw": "{\"warehouseId\": \"...\", \"productId\": \"...\", \"quantity\": 10}" } } },
+						{ "name": "List Inventory", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/list", "body": { "mode": "raw", "raw": "{\"warehouseId\": \"...\"}" } } },
+						{ "name": "Set Buffer", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/buffer/set", "body": { "mode": "raw", "raw": "{\"productId\": \"...\", \"bufferQuantity\": 5}" } } },
+						{ "name": "Save Layout", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/layout/save" } }
+					]
+				},
+				{
+					"name": "Shipping",
+					"item": [
+						{ "name": "Create Zone", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/shipping/zone/create" } },
+						{ "name": "Add Method", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/shipping/method/add" } },
+						{ "name": "List Carriers", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/shipping/carriers" } },
+						{ "name": "Calculate Shipping", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/shipping/calculate", "body": { "mode": "raw", "raw": "{\"zoneId\": \"...\", \"weight\": 2}" } } }
+					]
+				},
+				{
+					"name": "Fulfillment",
+					"item": [
+						{ "name": "Create Fulfillment", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/fulfillment/create" } },
+						{ "name": "Update Status", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/fulfillment/:id/update-status", "body": { "mode": "raw", "raw": "{\"status\": \"SHIPPED\", \"trackingNumber\": \"TRK123\"}" } } },
+						{ "name": "Order Details", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/fulfillment/order-details" } }
+					]
+				},
+				{
+					"name": "Procurement",
+					"item": [
+						{ "name": "Create PO", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/procurement/po/create" } },
+						{ "name": "Update PO Status", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/procurement/po/:id/update-status", "body": { "mode": "raw", "raw": "{\"status\": \"SENT\"}" } } },
+						{ "name": "List POs", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/procurement/po/list" } }
+					]
+				}
+			]
 		}
 	],
 	"auth": {
@@ -179,10 +219,10 @@
 		"bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
 	},
 	"variable": [
-		{ "key": "base_url", "value": "http://localhost:3000" },
+		{ "key": "base_url", "value": "http://localhost:5000" },
 		{ "key": "auth_token", "value": "your_jwt_token_here" },
-		{ "key": "user_id", "value": "..." },
-		{ "key": "product_id", "value": "..." },
-		{ "key": "registry_id", "value": "..." }
+		{ "key": "user_id", "value": "" },
+		{ "key": "product_id", "value": "" },
+		{ "key": "registry_id", "value": "" }
 	]
 }
