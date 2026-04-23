@@ -4,11 +4,12 @@ import { AuthModule } from '@/modules/auth/auth.module';
 import { UserModule } from '@/modules/user/user.module';
 import { RegistryModule } from '@/modules/registry/registry.module';
 import { BullModule } from '@nestjs/bullmq';
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { RegistryGuard } from '@/common/guards/registry.guard';
+import { GatewayMiddleware } from '@/common/middlewares/gateway.middleware';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -64,4 +65,8 @@ import { EcommerceModule } from '../ecommerce/ecommerce.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(GatewayMiddleware).forRoutes('*');
+  }
+}

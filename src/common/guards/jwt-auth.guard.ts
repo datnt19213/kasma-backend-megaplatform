@@ -22,7 +22,14 @@ export class JwtAuthGuard implements CanActivate {
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest();
 
-    // Get access token from cookies
+    // 1. Bắt Header từ Gateway (Tốc độ siêu cao, bỏ qua Redis)
+    const gatewayUserId = req.headers['x-user-id'];
+    if (gatewayUserId) {
+      req.user = { id: gatewayUserId };
+      return true;
+    }
+
+    // 2. Fallback: Lấy token từ cookie (dành cho call trực tiếp)
     const token = req.cookies?.access_token;
     if (!token) {
       throw new UnauthorizedException('Access token required');
