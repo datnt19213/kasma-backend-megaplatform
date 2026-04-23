@@ -1,6 +1,15 @@
-import { Body, Controller, Post, UseGuards, Req, Get } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Req } from '@nestjs/common';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { PayoutService } from './payout.service';
+import { CreatePayoutRequestDto, ProcessPayoutDto, PayoutListFilterDto } from '@/dto/marketplace-dto/payout.dto';
+
+interface RequestWithUser {
+  user: {
+    id: string;
+    app_key?: string;
+    tenant_key?: string;
+  };
+}
 
 @Controller('api/marketplace/payout')
 @UseGuards(JwtAuthGuard)
@@ -8,7 +17,7 @@ export class PayoutController {
   constructor(private readonly payoutService: PayoutService) {}
 
   @Post('balance')
-  async getBalance(@Body() body: { vendorId: string }, @Req() req: any) {
+  async getBalance(@Body() body: { vendorId: string }, @Req() req: RequestWithUser) {
     const context = {
       app_key: req.user?.app_key || 'MASTER',
       tenant_key: req.user?.tenant_key || 'MASTER',
@@ -17,9 +26,9 @@ export class PayoutController {
   }
 
   @Post('request')
-  async request(@Body() dto: any, @Req() req: any) {
+  async request(@Body() dto: CreatePayoutRequestDto & { vendorId?: string }, @Req() req: RequestWithUser) {
     const context = {
-      vendorId: dto.vendorId || req.user.id, // In a real scenario, use vendor record linked to user
+      vendorId: dto.vendorId || req.user.id,
       app_key: req.user?.app_key || 'MASTER',
       tenant_key: req.user?.tenant_key || 'MASTER',
     };
@@ -27,21 +36,20 @@ export class PayoutController {
   }
 
   @Post('process')
-  async process(@Body() body: { requestId: string; provider: string }, @Req() req: any) {
+  async process(@Body() dto: ProcessPayoutDto, @Req() req: RequestWithUser) {
     const context = {
       app_key: req.user?.app_key || 'MASTER',
       tenant_key: req.user?.tenant_key || 'MASTER',
     };
-    return await this.payoutService.processPayout(body.requestId, body.provider, context);
+    return await this.payoutService.processPayout(dto, context);
   }
 
   @Post('list')
-  async list(@Body() body: { vendorId?: string }, @Req() req: any) {
+  async list(@Body() filter: PayoutListFilterDto, @Req() req: RequestWithUser) {
     const context = {
-      vendorId: body.vendorId,
       app_key: req.user?.app_key || 'MASTER',
       tenant_key: req.user?.tenant_key || 'MASTER',
     };
-    return await this.payoutService.listRequests(context);
+    return await this.payoutService.listRequests(filter, context);
   }
 }

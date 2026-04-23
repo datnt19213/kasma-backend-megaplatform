@@ -6,6 +6,7 @@ import { Vendor } from '@/entities/marketplace/vendor.entity';
 import { Order, OrderStatus } from '@/entities/sales/order.entity';
 import { VendorRevenue } from '@/entities/marketplace/vendor-revenue.entity';
 import { TransactionBridgeService } from '../../finance/integration/transaction-bridge.service';
+import { CreatePayoutRequestDto, ProcessPayoutDto, PayoutListFilterDto } from '@/dto/marketplace-dto/payout.dto';
 
 @Injectable()
 export class PayoutService {
@@ -22,15 +23,11 @@ export class PayoutService {
     private readonly dataSource: DataSource,
   ) {}
 
-  /**
-   * Calculate available balance using the revenue ledger.
-   */
   async getAvailableBalance(vendorId: string, context: { app_key: string; tenant_key: string }) {
     const { app_key, tenant_key } = context;
 
-    // Sum of all net revenue that hasn't been settled in a payout
     const revenues = await this.revenueRepo.find({
-      where: { vendorId, app_key, tenant_key, isSettled: false }
+      where: { vendorId, app_key, tenant_key, isSettled: false } as any
     });
 
     const availableBalance = revenues.reduce((acc, r) => acc + Number(r.netAmount), 0);
@@ -41,7 +38,7 @@ export class PayoutService {
     };
   }
 
-  async createPayoutRequest(dto: { amount: number; destinationInfo: any }, context: { vendorId: string; app_key: string; tenant_key: string }) {
+  async createPayoutRequest(dto: CreatePayoutRequestDto, context: { vendorId: string; app_key: string; tenant_key: string }) {
     const { vendorId, app_key, tenant_key } = context;
 
     const balance = await this.getAvailableBalance(vendorId, context);
@@ -61,9 +58,9 @@ export class PayoutService {
     return await this.payoutRepo.save(request);
   }
 
-  async processPayout(requestId: string, provider: string, context: { app_key: string; tenant_key: string }) {
+  async processPayout(dto: ProcessPayoutDto, context: { app_key: string; tenant_key: string }) {
     const request = await this.payoutRepo.findOne({
-      where: { id: requestId, app_key: context.app_key, tenant_key: context.tenant_key },
+      where: { id: dto.requestId, app_key: context.app_key, tenant_key: context.tenant_key } as any,
       relations: ['vendor'],
     });
 
@@ -75,21 +72,18 @@ export class PayoutService {
     await queryRunner.startTransaction();
 
     try {
-      // 1. Call Microservice
       const payoutResult = await this.transactionBridge.processPayout({
         amount: Number(request.amount),
         currency: request.currency,
         destination: JSON.stringify(request.destinationInfo),
-        provider,
+        provider: dto.provider,
       });
 
-      // 2. Mark associated revenues as settled
       await queryRunner.manager.update(VendorRevenue, 
         { vendorId: request.vendorId, isSettled: false, app_key: context.app_key, tenant_key: context.tenant_key },
         { isSettled: true }
       );
 
-      // 3. Update payout status
       request.status = PayoutStatus.PROCESSED;
       request.transactionReference = payoutResult.metadata?.dynamicPayoutResponse?.id || 'EXTERNAL_SYNC';
       await queryRunner.manager.save(request);
@@ -107,13 +101,13 @@ export class PayoutService {
     }
   }
 
-  async listRequests(context: { vendorId?: string; app_key: string; tenant_key: string }) {
+  async listRequests(filter: PayoutListFilterDto, context: { app_key: string; tenant_key: string }) {
     const where: any = { app_key: context.app_key, tenant_key: context.tenant_key };
-    if (context.vendorId) where.vendorId = context.vendorId;
+    if (filter.vendorId) where.vendorId = filter.vendorId;
 
     return await this.payoutRepo.find({
       where,
-      order: { created_at: 'DESC' },
+      order: { created_at: 'DESC' } as any,
     });
   }
 }

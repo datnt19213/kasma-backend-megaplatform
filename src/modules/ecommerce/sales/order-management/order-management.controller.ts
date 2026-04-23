@@ -9,7 +9,7 @@ import {
 
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { OrderManagementService } from './order-management.service';
-import { CreateOrderDto } from '@/dto/sales-dto/sales.dto';
+import { CreateOrderDto, UpdateOrderStatusDto } from '@/dto/sales-dto/sales.dto';
 import { OrderStatus } from '@/entities/sales/order.entity';
 
 @Controller('sales/orders')
@@ -18,13 +18,13 @@ export class OrderManagementController {
   constructor(private readonly orderService: OrderManagementService) {}
 
   @Get('me')
-  async getMyOrders(@Req() req: any) {
+  async getMyOrders(@Req() req: { user: { sub: string } }) {
     const userId = req.user.sub;
     return this.orderService.getMyOrders(userId);
   }
 
   @Post('checkout')
-  async createOrderFromCart(@Req() req: any, @Body() dto: CreateOrderDto) {
+  async createOrderFromCart(@Req() req: { user: { sub: string } }, @Body() dto: CreateOrderDto) {
     const userId = req.user.sub;
     return this.orderService.createOrderFromCart(userId, dto);
   }
@@ -35,10 +35,13 @@ export class OrderManagementController {
   }
 
   @Post('update-status')
-  async updateOrderStatus(
-    @Body() body: { id: string; status: OrderStatus; trackingNumber?: string }
-  ) {
-    return this.orderService.updateOrderStatus(body.id, body.status, body.trackingNumber);
+  async updateOrderStatus(@Body() dto: UpdateOrderStatusDto) {
+    return this.orderService.updateOrderStatus(
+      dto.id, 
+      dto.status as OrderStatus, 
+      dto.trackingNumber,
+      dto.paymentStatus
+    );
   }
 
   @Post('cancel')

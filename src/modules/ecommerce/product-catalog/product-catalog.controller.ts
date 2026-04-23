@@ -1,12 +1,14 @@
 import {
-  Body,
   Controller,
   Get,
   Post,
+  Body,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { ProductCatalogService } from '@/modules/ecommerce/product-catalog/product-catalog.service';
+import { CreateProductDto, UpdateProductDto, BulkCompareDto, ProductFilterDto } from '@/dto/ecommerce-dto/product.dto';
 
 @Controller('ecommerce/products')
 @UseGuards(JwtAuthGuard)
@@ -14,12 +16,12 @@ export class ProductCatalogController {
   constructor(private readonly catalogService: ProductCatalogService) { }
 
   @Post('create')
-  async createProduct(@Body() dto: any) {
+  async createProduct(@Body() dto: CreateProductDto) {
     return await this.catalogService.createProduct(dto);
   }
 
   @Post('update')
-  async updateProduct(@Body() body: { id: string; data: any }) {
+  async updateProduct(@Body() body: { id: string; data: UpdateProductDto }) {
     return await this.catalogService.updateProduct(body.id, body.data);
   }
 
@@ -29,8 +31,8 @@ export class ProductCatalogController {
   }
 
   @Get('list')
-  async listProducts() {
-    return await this.catalogService.getAllProducts();
+  async listProducts(@Query() filter: ProductFilterDto) {
+    return await this.catalogService.getAllProducts(filter);
   }
 
   @Post('details')
@@ -44,8 +46,8 @@ export class ProductCatalogController {
   }
 
   @Post('compare')
-  async compareProducts(@Body() body: { productIds: string[] }) {
-    return await this.catalogService.compareProducts(body.productIds);
+  async compareProducts(@Body() dto: BulkCompareDto) {
+    return await this.catalogService.compareProducts(dto.productIds);
   }
 
   @Get('feed')

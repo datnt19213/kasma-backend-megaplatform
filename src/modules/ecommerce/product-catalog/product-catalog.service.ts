@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 
 import { ProductCategory } from '@/entities/ecommerce/product-category.entity';
 import { ProductTag } from '@/entities/ecommerce/product-tag.entity';
 import { Product } from '@/entities/ecommerce/product.entity';
 import { ProductVariant } from '@/entities/ecommerce/product-variant.entity';
 import { ProductDetail } from '@/entities/mongo/product-detail.mongo-entity';
+import { CreateProductDto, UpdateProductDto, ProductFilterDto } from '@/dto/ecommerce-dto/product.dto';
 
 @Injectable()
 export class ProductCatalogService {
@@ -23,25 +24,22 @@ export class ProductCatalogService {
     private readonly detailRepo: Repository<ProductDetail>,
   ) { }
 
-  // 1. CREATE Product (POST-only)
-  async createProduct(dto: any) {
-    // a. Save Core relational data (Postgres)
+  async createProduct(dto: CreateProductDto) {
     const product = this.productRepo.create({
-      code: dto.code,
+      code: (dto as any).code,
       name: dto.name,
       slug: dto.slug,
-      shortDescription: dto.shortDescription,
+      shortDescription: (dto as any).shortDescription,
       price: dto.price,
-      salePrice: dto.salePrice,
+      salePrice: (dto as any).salePrice,
       categoryId: dto.categoryId,
     });
     const savedProduct = await this.productRepo.save(product);
 
-    // b. Save Rich/Dynamic content (MongoDB)
     const detail = this.detailRepo.create({
       product_id: savedProduct.id,
-      description: dto.fullDescription,
-      specifications: dto.specifications || {},
+      description: dto.description,
+      specifications: dto.specifications || [],
       attributes: dto.attributes || [],
       media: dto.media || [],
     });
@@ -50,20 +48,17 @@ export class ProductCatalogService {
     return { success: true, productId: savedProduct.id };
   }
 
-  // 2. UPDATE Product (POST-only)
-  async updateProduct(id: string, data: any) {
-    // a. Update Core (Postgres)
+  async updateProduct(id: string, data: UpdateProductDto) {
     await this.productRepo.update(id, {
       name: data.name,
       price: data.price,
-      salePrice: data.salePrice,
-      shortDescription: data.shortDescription,
+      salePrice: (data as any).salePrice,
+      shortDescription: (data as any).shortDescription,
     });
 
-    // b. Update Detail (MongoDB)
     const detail = await this.detailRepo.findOne({ where: { product_id: id } as any });
     if (detail) {
-      detail.description = data.fullDescription;
+      detail.description = data.description;
       detail.specifications = data.specifications;
       detail.attributes = data.attributes;
       detail.media = data.media;
@@ -73,22 +68,23 @@ export class ProductCatalogService {
     return { success: true, message: 'Product updated successfully' };
   }
 
-  // 3. DELETE Product (POST-only)
   async deleteProduct(id: string) {
-    // Delete from both stores (Ideally wrapped in a saga or similar in production)
     await this.productRepo.delete(id);
     await this.detailRepo.delete({ product_id: id } as any);
     return { success: true, message: 'Product deleted successfully' };
   }
 
-  // 4. GET All Products (GET)
-  async getAllProducts() {
+  async getAllProducts(filter?: ProductFilterDto) {
+    const where: any = {};
+    if (filter?.categoryId) where.categoryId = filter.categoryId;
+    if (filter?.isActive !== undefined) where.isActive = filter.isActive;
+
     return await this.productRepo.find({
+      where,
       relations: ['category', 'variants'],
     });
   }
 
-  // 5. GET Product Details (Hybrid View)
   async getProductById(id: string) {
     const core = await this.productRepo.findOne({
       where: { id },
@@ -110,7 +106,6 @@ export class ProductCatalogService {
     return await this.categoryRepo.find();
   }
 
-  // 6. Product Comparison (Aggregated specifications from MongoDB)
   async compareProducts(productIds: string[]) {
     const details = await this.detailRepo.find({
       where: { product_id: { $in: productIds } } as any,
@@ -123,7 +118,6 @@ export class ProductCatalogService {
     }));
   }
 
-  // 7. Data Feed Generator (Flattened hybrid data)
   async generateFeed() {
     const products = await this.productRepo.find();
     const details = await this.detailRepo.find();
@@ -136,7 +130,7 @@ export class ProductCatalogService {
         id: p.id,
         title: p.name,
         price: `${p.price} VND`,
-        image_url: d?.media?.[0]?.url || '',
+        image_url: d?.media?.[0]?.mediaUrl || '',
         category: p.categoryId,
         availability: 'in_stock'
       };

@@ -82,3 +82,22 @@ export class CreateSubscriptionDto {
   @IsEnum(['weekly', 'monthly', 'yearly'])
   interval: string;
 }
+
+// --- Order Management DTOs ---
+export class UpdateOrderStatusDto {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+
+  @IsNotEmpty()
+  @IsString()
+  status: string;
+
+  @IsOptional()
+  @IsString()
+  trackingNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  paymentStatus?: string;
+}

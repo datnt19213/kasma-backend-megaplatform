@@ -58,11 +58,11 @@
 			"item": [
 				{ "name": "List Products", "request": { "method": "GET", "url": "{{base_url}}/ecommerce/products/list" } },
 				{ "name": "Product Details", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/details", "body": { "mode": "raw", "raw": "{\"id\": \"{{product_id}}\"}" } } },
-				{ "name": "Create Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/create" } },
-				{ "name": "Update Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/update" } },
-				{ "name": "Delete Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/delete" } },
+				{ "name": "Create Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/create", "body": { "mode": "raw", "raw": "{\"code\": \"P-2026-X1\", \"name\": \"Smartphone Kasma Pro\", \"slug\": \"smartphone-kasma-pro\", \"shortDescription\": \"Flagship device with AI integration\", \"price\": 25000000, \"salePrice\": 22000000, \"isActive\": true, \"categoryId\": \"cat-tech-01\", \"vendorId\": \"v-global-001\", \"tags\": [\"tech\", \"mobile\"]}" } } },
+				{ "name": "Update Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/update", "body": { "mode": "raw", "raw": "{\"id\": \"{{product_id}}\", \"price\": 15500000}" } } },
+				{ "name": "Delete Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/delete", "body": { "mode": "raw", "raw": "{\"id\": \"{{product_id}}\"}" } } },
 				{ "name": "List Categories", "request": { "method": "GET", "url": "{{base_url}}/ecommerce/products/categories" } },
-				{ "name": "Compare Products", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/compare" } },
+				{ "name": "Compare Products", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/compare", "body": { "mode": "raw", "raw": "{\"productIds\": [\"p1\", \"p2\"]}" } } },
 				{ "name": "Generate XML Feed", "request": { "method": "GET", "url": "{{base_url}}/ecommerce/products/feed" } }
 			]
 		},
@@ -73,9 +73,9 @@
 					"name": "Shopping Cart",
 					"item": [
 						{ "name": "Get My Cart", "request": { "method": "GET", "url": "{{base_url}}/sales/cart/me" } },
-						{ "name": "Add to Cart", "request": { "method": "POST", "url": "{{base_url}}/sales/cart/add", "body": { "mode": "raw", "raw": "{\"productId\": \"...\", \"quantity\": 1}" } } },
-						{ "name": "Update Cart Item", "request": { "method": "POST", "url": "{{base_url}}/sales/cart/update" } },
-						{ "name": "Remove from Cart", "request": { "method": "POST", "url": "{{base_url}}/sales/cart/remove" } },
+						{ "name": "Add to Cart", "request": { "method": "POST", "url": "{{base_url}}/sales/cart/add", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-123\", \"variantId\": \"var-456\", \"quantity\": 1}" } } },
+						{ "name": "Update Cart Item", "request": { "method": "POST", "url": "{{base_url}}/sales/cart/update", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-123\", \"quantity\": 2}" } } },
+						{ "name": "Remove from Cart", "request": { "method": "POST", "url": "{{base_url}}/sales/cart/remove", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-123\"}" } } },
 						{ "name": "Clear My Cart", "request": { "method": "POST", "url": "{{base_url}}/sales/cart/clear" } },
 						{ "name": "Cart Summary (Totals)", "request": { "method": "GET", "url": "{{base_url}}/sales/cart/summary" } }
 					]
@@ -84,28 +84,28 @@
 					"name": "Order Management",
 					"item": [
 						{ "name": "Get My Orders", "request": { "method": "GET", "url": "{{base_url}}/sales/orders/me" } },
-						{ "name": "Checkout Order", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/checkout", "body": { "mode": "raw", "raw": "{\"shippingAddress\": \"...\", \"paymentMethod\": \"STRIPE\"}" } } },
-						{ "name": "Order Details", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/details" } },
-						{ "name": "Update Status (Admin)", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/update-status" } },
-						{ "name": "Cancel Order", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/cancel" } }
+						{ "name": "Checkout Order", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/checkout", "body": { "mode": "raw", "raw": "{\"shippingAddress\": {\"street\": \"123 Kasma Blvd\", \"city\": \"Hanoi\", \"country\": \"VN\", \"phone\": \"0987654321\", \"receiverName\": \"John Doe\"}, \"billingAddress\": {\"street\": \"123 Kasma Blvd\", \"city\": \"Hanoi\"}, \"paymentMethod\": \"STRIPE\", \"couponCode\": \"KASMA_WELCOME\", \"notes\": \"Deliver in office hours\", \"parentOrderId\": null}" } } },
+						{ "name": "Order Details", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/details", "body": { "mode": "raw", "raw": "{\"orderId\": \"ord-123\"}" } } },
+						{ "name": "Update Status (Admin)", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/update-status", "body": { "mode": "raw", "raw": "{\"orderId\": \"ord-123\", \"status\": \"shipped\", \"trackingNumber\": \"TRK-KASMA-999\", \"paymentStatus\": \"paid\", \"internalNotes\": \"Package handled to GHN\"}" } } },
+						{ "name": "Cancel Order", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/cancel", "body": { "mode": "raw", "raw": "{\"orderId\": \"ord-123\"}" } } }
 					]
 				},
 				{
 					"name": "Wishlist",
 					"item": [
 						{ "name": "Get My Wishlist", "request": { "method": "GET", "url": "{{base_url}}/sales/wishlist/me" } },
-						{ "name": "Add to Wishlist", "request": { "method": "POST", "url": "{{base_url}}/sales/wishlist/add" } },
-						{ "name": "Remove from Wishlist", "request": { "method": "POST", "url": "{{base_url}}/sales/wishlist/remove" } }
+						{ "name": "Add to Wishlist", "request": { "method": "POST", "url": "{{base_url}}/sales/wishlist/add", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-123\"}" } } },
+						{ "name": "Remove from Wishlist", "request": { "method": "POST", "url": "{{base_url}}/sales/wishlist/remove", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-123\"}" } } }
 					]
 				},
 				{
 					"name": "Subscriptions & Pre-orders",
 					"item": [
 						{ "name": "Get My Subscriptions", "request": { "method": "GET", "url": "{{base_url}}/sales/subscriptions/me" } },
-						{ "name": "Create Subscription", "request": { "method": "POST", "url": "{{base_url}}/sales/subscriptions/create" } },
-						{ "name": "Cancel Subscription", "request": { "method": "POST", "url": "{{base_url}}/sales/subscriptions/cancel" } },
+						{ "name": "Create Subscription", "request": { "method": "POST", "url": "{{base_url}}/sales/subscriptions/create", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-sub-1\", \"interval\": \"monthly\", \"paymentMethod\": \"INTERNAL_WALLET\"}" } } },
+						{ "name": "Cancel Subscription", "request": { "method": "POST", "url": "{{base_url}}/sales/subscriptions/cancel", "body": { "mode": "raw", "raw": "{\"id\": \"sub-123\"}" } } },
 						{ "name": "Get My Pre-orders", "request": { "method": "GET", "url": "{{base_url}}/sales/pre-orders/me" } },
-						{ "name": "Create Pre-order", "request": { "method": "POST", "url": "{{base_url}}/sales/pre-orders/create" } }
+						{ "name": "Create Pre-order", "request": { "method": "POST", "url": "{{base_url}}/sales/pre-orders/create", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-pre-1\", \"depositAmount\": 500000}" } } }
 					]
 				}
 			]
@@ -117,10 +117,10 @@
 					"name": "Promotion Engine",
 					"item": [
 						{ "name": "List Promotions", "request": { "method": "GET", "url": "{{base_url}}/marketing/promotions/list" } },
-						{ "name": "Promotion Details", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/details" } },
-						{ "name": "Create Promotion", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/create" } },
-						{ "name": "Update Promotion", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/update" } },
-						{ "name": "Remove Promotion", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/remove" } }
+						{ "name": "Promotion Details", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/details", "body": { "mode": "raw", "raw": "{\"id\": \"promo-123\"}" } } },
+						{ "name": "Create Promotion", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/create", "body": { "mode": "raw", "raw": "{\"name\": \"Black Friday 2026\", \"slug\": \"black-friday-2026\", \"type\": \"PERCENTAGE\", \"value\": 50, \"startDate\": \"2026-11-20T00:00:00Z\", \"endDate\": \"2026-11-30T23:59:59Z\", \"applicableTo\": \"CATEGORY\", \"targetId\": \"cat-123\", \"minOrderValue\": 1000000, \"maxDiscount\": 500000, \"priority\": 1, \"isActive\": true}" } } },
+						{ "name": "Update Promotion", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/update", "body": { "mode": "raw", "raw": "{\"id\": \"promo-123\", \"value\": 25}" } } },
+						{ "name": "Remove Promotion", "request": { "method": "POST", "url": "{{base_url}}/marketing/promotions/remove", "body": { "mode": "raw", "raw": "{\"id\": \"promo-123\"}" } } }
 					]
 				},
 				{
@@ -128,9 +128,9 @@
 					"item": [
 						{ "name": "List Coupons", "request": { "method": "GET", "url": "{{base_url}}/marketing/coupons/list" } },
 						{ "name": "Validate Coupon", "request": { "method": "POST", "url": "{{base_url}}/marketing/coupons/validate", "body": { "mode": "raw", "raw": "{\"code\": \"SUMMER2026\"}" } } },
-						{ "name": "Create Coupon", "request": { "method": "POST", "url": "{{base_url}}/marketing/coupons/create" } },
-						{ "name": "Update Coupon", "request": { "method": "POST", "url": "{{base_url}}/marketing/coupons/update" } },
-						{ "name": "Remove Coupon", "request": { "method": "POST", "url": "{{base_url}}/marketing/coupons/remove" } }
+						{ "name": "Create Coupon", "request": { "method": "POST", "url": "{{base_url}}/marketing/coupons/create", "body": { "mode": "raw", "raw": "{\"code\": \"KASMA50\", \"type\": \"FIXED_AMOUNT\", \"value\": 50000, \"minOrderAmount\": 500000, \"maxUsageTotal\": 1000, \"maxUsagePerUser\": 1, \"startDate\": \"2026-01-01\", \"endDate\": \"2026-12-31\", \"isStackable\": false, \"isActive\": true}" } } },
+						{ "name": "Update Coupon", "request": { "method": "POST", "url": "{{base_url}}/marketing/coupons/update", "body": { "mode": "raw", "raw": "{\"id\": \"coup-123\", \"usageLimit\": 200}" } } },
+						{ "name": "Remove Coupon", "request": { "method": "POST", "url": "{{base_url}}/marketing/coupons/remove", "body": { "mode": "raw", "raw": "{\"id\": \"coup-123\"}" } } }
 					]
 				},
 				{
@@ -139,8 +139,8 @@
 						{ "name": "List Tiers", "request": { "method": "GET", "url": "{{base_url}}/marketing/loyalty/tiers/list" } },
 						{ "name": "My Points Balance", "request": { "method": "GET", "url": "{{base_url}}/marketing/loyalty/me/balance" } },
 						{ "name": "My History", "request": { "method": "GET", "url": "{{base_url}}/marketing/loyalty/me/history" } },
-						{ "name": "Add Points (Admin)", "request": { "method": "POST", "url": "{{base_url}}/marketing/loyalty/points/add" } },
-						{ "name": "Create Tier (Admin)", "request": { "method": "POST", "url": "{{base_url}}/marketing/loyalty/tiers/create" } }
+						{ "name": "Add Points (Admin)", "request": { "method": "POST", "url": "{{base_url}}/marketing/loyalty/points/add", "body": { "mode": "raw", "raw": "{\"userId\": \"user-123\", \"points\": 500, \"reason\": \"Birthday gift\"}" } } },
+						{ "name": "Create Tier (Admin)", "request": { "method": "POST", "url": "{{base_url}}/marketing/loyalty/tiers/create", "body": { "mode": "raw", "raw": "{\"name\": \"Gold\", \"minPoints\": 5000, \"multiplier\": 1.2}" } } }
 					]
 				},
 				{
@@ -148,27 +148,27 @@
 					"item": [
 						{ "name": "List Programs", "request": { "method": "GET", "url": "{{base_url}}/marketing/affiliate/program/list" } },
 						{ "name": "My Affiliate Links", "request": { "method": "GET", "url": "{{base_url}}/marketing/affiliate/me/links" } },
-						{ "name": "Create Program (Admin)", "request": { "method": "POST", "url": "{{base_url}}/marketing/affiliate/program/create" } },
-						{ "name": "Create Link", "request": { "method": "POST", "url": "{{base_url}}/marketing/affiliate/link/create" } },
-						{ "name": "Lookup Code", "request": { "method": "POST", "url": "{{base_url}}/marketing/affiliate/link/lookup" } }
+						{ "name": "Create Program (Admin)", "request": { "method": "POST", "url": "{{base_url}}/marketing/affiliate/program/create", "body": { "mode": "raw", "raw": "{\"name\": \"KOL Partner\", \"commissionRate\": 15}" } } },
+						{ "name": "Create Link", "request": { "method": "POST", "url": "{{base_url}}/marketing/affiliate/link/create", "body": { "mode": "raw", "raw": "{\"programId\": \"prog-123\"}" } } },
+						{ "name": "Lookup Code", "request": { "method": "POST", "url": "{{base_url}}/marketing/affiliate/link/lookup", "body": { "mode": "raw", "raw": "{\"code\": \"REF-ABC\"}" } } }
 					]
 				},
 				{
 					"name": "Abandoned Cart",
 					"item": [
 						{ "name": "List Abandoned (Admin)", "request": { "method": "GET", "url": "{{base_url}}/marketing/abandoned-cart/list" } },
-						{ "name": "Trigger Tracking", "request": { "method": "POST", "url": "{{base_url}}/marketing/abandoned-cart/track" } },
-						{ "name": "Mark Recovered", "request": { "method": "POST", "url": "{{base_url}}/marketing/abandoned-cart/status/recovered" } }
+						{ "name": "Trigger Tracking", "request": { "method": "POST", "url": "{{base_url}}/marketing/abandoned-cart/track", "body": { "mode": "raw", "raw": "{\"cartId\": \"cart-123\", \"email\": \"user@example.com\"}" } } },
+						{ "name": "Mark Recovered", "request": { "method": "POST", "url": "{{base_url}}/marketing/abandoned-cart/status/recovered", "body": { "mode": "raw", "raw": "{\"cartId\": \"cart-123\"}" } } }
 					]
 				},
 				{
 					"name": "Product Bundles",
 					"item": [
 						{ "name": "List Bundles", "request": { "method": "GET", "url": "{{base_url}}/marketing/bundles/list" } },
-						{ "name": "Bundle Details", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/details" } },
-						{ "name": "Create Bundle", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/create" } },
-						{ "name": "Update Bundle", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/update" } },
-						{ "name": "Remove Bundle", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/remove" } }
+						{ "name": "Bundle Details", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/details", "body": { "mode": "raw", "raw": "{\"id\": \"bund-123\"}" } } },
+						{ "name": "Create Bundle", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/create", "body": { "mode": "raw", "raw": "{\"name\": \"Gamer Pack\", \"productIds\": [\"p1\", \"p2\"], \"bundlePrice\": 2000000}" } } },
+						{ "name": "Update Bundle", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/update", "body": { "mode": "raw", "raw": "{\"id\": \"bund-123\", \"bundlePrice\": 1900000}" } } },
+						{ "name": "Remove Bundle", "request": { "method": "POST", "url": "{{base_url}}/marketing/bundles/remove", "body": { "mode": "raw", "raw": "{\"id\": \"bund-123\"}" } } }
 					]
 				}
 			]
@@ -179,36 +179,36 @@
 				{
 					"name": "Inventory",
 					"item": [
-						{ "name": "Create Warehouse", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/warehouse/create", "body": { "mode": "raw", "raw": "{\"name\": \"Central Warehouse\", \"city\": \"Hanoi\"}" } } },
-						{ "name": "Adjust Stock", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/adjust", "body": { "mode": "raw", "raw": "{\"warehouseId\": \"...\", \"productId\": \"...\", \"quantity\": 10}" } } },
+						{ "name": "Create Warehouse", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/warehouse/create", "body": { "mode": "raw", "raw": "{\"name\": \"Central Fulfillment Center\", \"code\": \"WH-Hanoi-01\", \"city\": \"Hanoi\", \"address\": \"Kasma Industrial Park\", \"capacity\": 5000, \"isActive\": true, \"managerName\": \"Alex Kim\"}" } } },
+						{ "name": "Adjust Stock", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/adjust", "body": { "mode": "raw", "raw": "{\"warehouseId\": \"wh-001\", \"productId\": \"prod-123\", \"quantity\": 10, \"reason\": \"Manual Correction\", \"reference\": \"DOC-2026-001\"}" } } },
 						{ "name": "List Inventory", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/list", "body": { "mode": "raw", "raw": "{\"warehouseId\": \"...\"}" } } },
-						{ "name": "Set Buffer", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/buffer/set", "body": { "mode": "raw", "raw": "{\"productId\": \"...\", \"bufferQuantity\": 5}" } } },
-						{ "name": "Save Layout", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/layout/save" } }
+						{ "name": "Set Buffer", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/buffer/set", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-123\", \"bufferQuantity\": 5}" } } },
+						{ "name": "Save Layout", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/layout/save", "body": { "mode": "raw", "raw": "{\"warehouse_id\": \"wh-123\", \"aisles\": [{\"id\": \"A1\", \"shelves\": [\"S1\", \"S2\"]}]}" } } }
 					]
 				},
 				{
 					"name": "Shipping",
 					"item": [
-						{ "name": "Create Zone", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/shipping/zone/create" } },
-						{ "name": "Add Method", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/shipping/method/add" } },
-						{ "name": "List Carriers", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/shipping/carriers" } },
+						{ "name": "Create Zone", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/shipping/zone/create", "body": { "mode": "raw", "raw": "{\"name\": \"Domestic North\", \"countries\": [\"VN\"], \"provinces\": [\"Hanoi\", \"Hai Phong\"]}" } } },
+						{ "name": "Add Method", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/shipping/method/add", "body": { "mode": "raw", "raw": "{\"zoneId\": \"zone-123\", \"name\": \"Fast Express\", \"baseCost\": 35000, \"costPerKg\": 5000}" } } },
+						{ "name": "List Carriers", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/shipping/carriers", "body": { "mode": "raw", "raw": "{\"status\": \"ACTIVE\"}" } } },
 						{ "name": "Calculate Shipping", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/shipping/calculate", "body": { "mode": "raw", "raw": "{\"zoneId\": \"...\", \"weight\": 2}" } } }
 					]
 				},
 				{
 					"name": "Fulfillment",
 					"item": [
-						{ "name": "Create Fulfillment", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/fulfillment/create" } },
+						{ "name": "Create Fulfillment", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/fulfillment/create", "body": { "mode": "raw", "raw": "{\"orderId\": \"ord-123\", \"carrierId\": \"ghtk\", \"serviceType\": \"ECONOMY\"}" } } },
 						{ "name": "Update Status", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/fulfillment/:id/update-status", "body": { "mode": "raw", "raw": "{\"status\": \"SHIPPED\", \"trackingNumber\": \"TRK123\"}" } } },
-						{ "name": "Order Details", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/fulfillment/order-details" } }
+						{ "name": "Order Details", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/fulfillment/order-details", "body": { "mode": "raw", "raw": "{\"orderId\": \"ord-123\"}" } } }
 					]
 				},
 				{
 					"name": "Procurement",
 					"item": [
-						{ "name": "Create PO", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/procurement/po/create" } },
+						{ "name": "Create PO", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/procurement/po/create", "body": { "mode": "raw", "raw": "{\"vendorName\": \"Global Tech\", \"items\": [{\"productId\": \"p1\", \"quantity\": 100, \"unitPrice\": 12000000}]}" } } },
 						{ "name": "Update PO Status", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/procurement/po/:id/update-status", "body": { "mode": "raw", "raw": "{\"status\": \"SENT\"}" } } },
-						{ "name": "List POs", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/procurement/po/list" } }
+						{ "name": "List POs", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/procurement/po/list", "body": { "mode": "raw", "raw": "{\"status\": \"PENDING\"}" } } }
 					]
 				}
 			]
@@ -226,7 +226,7 @@
 				{
 					"name": "Multi-Currency",
 					"item": [
-						{ "name": "List Currencies", "request": { "method": "POST", "url": "{{base_url}}/api/finance/currency/list" } },
+						{ "name": "List Currencies", "request": { "method": "POST", "url": "{{base_url}}/api/finance/currency/list", "body": { "mode": "raw", "raw": "{\"isActive\": true}" } } },
 						{ "name": "Convert Currency", "request": { "method": "POST", "url": "{{base_url}}/api/finance/currency/convert", "body": { "mode": "raw", "raw": "{\"amount\": 100, \"from\": \"USD\", \"to\": \"VND\"}" } } },
 						{ "name": "Update Exchange Rate", "request": { "method": "POST", "url": "{{base_url}}/api/finance/currency/rates/update", "body": { "mode": "raw", "raw": "{\"from\": \"USD\", \"to\": \"VND\", \"rate\": 25450}" } } }
 					]
@@ -236,7 +236,7 @@
 					"item": [
 						{ "name": "My Wallet Balance", "request": { "method": "POST", "url": "{{base_url}}/api/finance/wallet/balance" } },
 						{ "name": "Redeem Gift Card", "request": { "method": "POST", "url": "{{base_url}}/api/finance/wallet/redeem", "body": { "mode": "raw", "raw": "{\"code\": \"GC-KASMA-2026\"}" } } },
-						{ "name": "My Transaction Ledger", "request": { "method": "POST", "url": "{{base_url}}/api/finance/wallet/ledger" } }
+						{ "name": "My Transaction Ledger", "request": { "method": "POST", "url": "{{base_url}}/api/finance/wallet/ledger", "body": { "mode": "raw", "raw": "{\"limit\": 50, \"offset\": 0}" } } }
 					]
 				}
 			]
@@ -244,18 +244,18 @@
 		{
 			"name": "9. OPERATIONS",
 			"item": [
-				{ "name": "Create Review", "request": { "method": "POST", "url": "{{base_url}}/api/operations/review/create" } },
-				{ "name": "List Reviews", "request": { "method": "POST", "url": "{{base_url}}/api/operations/review/list" } },
-				{ "name": "Product Rating Summary", "request": { "method": "POST", "url": "{{base_url}}/api/operations/review/rating-summary" } },
-				{ "name": "Request RMA", "request": { "method": "POST", "url": "{{base_url}}/api/operations/rma/request" } },
-				{ "name": "Inspect RMA", "request": { "method": "POST", "url": "{{base_url}}/api/operations/rma/inspect" } },
-				{ "name": "Update RMA Status (with Restock)", "request": { "method": "POST", "url": "{{base_url}}/api/operations/rma/update-status" } },
-				{ "name": "Process Refund", "request": { "method": "POST", "url": "{{base_url}}/api/operations/refund/process" } },
-				{ "name": "Create Ticket", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/create" } },
-				{ "name": "Add Message to Ticket", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/message" } },
+				{ "name": "Create Review", "request": { "method": "POST", "url": "{{base_url}}/api/operations/review/create", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-123\", \"rating\": 5, \"comment\": \"Great product!\"}" } } },
+				{ "name": "List Reviews", "request": { "method": "POST", "url": "{{base_url}}/api/operations/review/list", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-123\"}" } } },
+				{ "name": "Product Rating Summary", "request": { "method": "POST", "url": "{{base_url}}/api/operations/review/rating-summary", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-123\"}" } } },
+				{ "name": "Request RMA", "request": { "method": "POST", "url": "{{base_url}}/api/operations/rma/request", "body": { "mode": "raw", "raw": "{\"orderId\": \"ord-001\", \"reason\": \"Defective item\", \"items\": [{\"productId\": \"p1\", \"quantity\": 1}]}" } } },
+				{ "name": "Inspect RMA", "request": { "method": "POST", "url": "{{base_url}}/api/operations/rma/inspect", "body": { "mode": "raw", "raw": "{\"requestId\": \"rma-123\", \"findings\": \"Scratches on surface\", \"condition\": \"GOOD\"}" } } },
+				{ "name": "Update RMA Status (with Restock)", "request": { "method": "POST", "url": "{{base_url}}/api/operations/rma/update-status", "body": { "mode": "raw", "raw": "{\"requestId\": \"rma-123\", \"status\": \"COMPLETED\", \"shouldRestock\": true}" } } },
+				{ "name": "Process Refund", "request": { "method": "POST", "url": "{{base_url}}/api/operations/refund/process", "body": { "mode": "raw", "raw": "{\"orderId\": \"ord-001\", \"amount\": 500000, \"method\": \"WALLET\", \"reason\": \"Customer request\"}" } } },
+				{ "name": "Create Ticket", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/create", "body": { "mode": "raw", "raw": "{\"subject\": \"Login issue\", \"description\": \"Cannot login with Google\", \"priority\": \"HIGH\", \"category\": \"TECHNICAL\"}" } } },
+				{ "name": "Add Message to Ticket", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/message", "body": { "mode": "raw", "raw": "{\"ticketId\": \"t-123\", \"message\": \"I have tried clearing cache.\"}" } } },
 				{ "name": "List Tickets", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/list" } },
-				{ "name": "Ticket Conversation", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/conversation" } },
-				{ "name": "Close Ticket", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/close" } }
+				{ "name": "Ticket Conversation", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/conversation", "body": { "mode": "raw", "raw": "{\"ticketId\": \"t-123\"}" } } },
+				{ "name": "Close Ticket", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/close", "body": { "mode": "raw", "raw": "{\"id\": \"t-123\"}" } } }
 			]
 		},
 		{
@@ -265,6 +265,8 @@
 				{ "name": "Request Payout", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/payout/request", "body": { "mode": "raw", "raw": "{\"amount\": 1000000, \"destinationInfo\": {\"bank\": \"VCB\", \"account\": \"12345678\"}}" } } },
 				{ "name": "Approve & Process Payout", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/payout/process", "body": { "mode": "raw", "raw": "{\"requestId\": \"req-123\", \"provider\": \"STRIPE_PAYOUT\"}" } } },
 				{ "name": "Calculate Commission", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/commission/calculate", "body": { "mode": "raw", "raw": "{\"vendorId\": \"v-001\", \"orderTotal\": 500000}" } } },
+				{ "name": "List Payout Requests", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/payout/list", "body": { "mode": "raw", "raw": "{\"vendorId\": \"v-001\"}" } } },
+				{ "name": "Save Commission Rule", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/commission/rule/save", "body": { "mode": "raw", "raw": "{\"vendorId\": \"v-001\", \"categoryId\": \"cat-electronics\", \"rate\": 10.5, \"fixedFee\": 5000, \"isActive\": true, \"description\": \"Standard electronics fee\"}" } } },
 				{ "name": "Fraud Signals", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/fraud/signals" } }
 			]
 		},
