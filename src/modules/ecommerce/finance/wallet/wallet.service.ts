@@ -4,6 +4,7 @@ import { Repository, DataSource } from 'typeorm';
 import { StoreCredit } from '@/entities/finance/store-credit.entity';
 import { GiftCard, GiftCardStatus } from '@/entities/finance/gift-card.entity';
 import { FinanceTransaction, FinanceTransactionType } from '@/entities/mongo/finance-transaction.mongo-entity';
+import { LockService } from '@/shared/lock/lock.service';
 
 @Injectable()
 export class WalletService {
@@ -15,6 +16,7 @@ export class WalletService {
     @InjectRepository(FinanceTransaction, 'mongo')
     private readonly ledgerRepo: Repository<FinanceTransaction>,
     private readonly dataSource: DataSource,
+    private readonly lockService: LockService,
   ) {}
 
   async getBalance(userId: string, context: { app_key: string; tenant_key: string }) {
@@ -101,6 +103,10 @@ export class WalletService {
   async creditUser(userId: string, amount: number, context: { app_key: string; tenant_key: string; reason?: string; type?: FinanceTransactionType; referenceId?: string }) {
     const { app_key, tenant_key, reason, type, referenceId } = context;
     
+    // Acquire distributed lock for this user's wallet
+    const lockKey = `lock:wallet:${userId}`;
+    const lock = await this.lockService.acquire(lockKey, 10000);
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -137,6 +143,7 @@ export class WalletService {
       throw err;
     } finally {
       await queryRunner.release();
+      await lock.release();
     }
   }
 }

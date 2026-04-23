@@ -4,6 +4,7 @@ import { Repository, DataSource } from 'typeorm';
 import { PayoutRequest, PayoutStatus } from '@/entities/marketplace/payout-request.entity';
 import { Vendor } from '@/entities/marketplace/vendor.entity';
 import { Order, OrderStatus } from '@/entities/sales/order.entity';
+import { VendorRevenue } from '@/entities/marketplace/vendor-revenue.entity';
 import { TransactionBridgeService } from '../../finance/integration/transaction-bridge.service';
 
 @Injectable()
@@ -15,46 +16,28 @@ export class PayoutService {
     private readonly vendorRepo: Repository<Vendor>,
     @InjectRepository(Order, 'postgres')
     private readonly orderRepo: Repository<Order>,
+    @InjectRepository(VendorRevenue, 'postgres')
+    private readonly revenueRepo: Repository<VendorRevenue>,
     private readonly transactionBridge: TransactionBridgeService,
     private readonly dataSource: DataSource,
   ) {}
 
   /**
-   * Calculate available balance for a vendor
-   * Only DELIVERED orders that haven't been included in a payout are eligible.
+   * Calculate available balance using the revenue ledger.
    */
   async getAvailableBalance(vendorId: string, context: { app_key: string; tenant_key: string }) {
     const { app_key, tenant_key } = context;
 
-    // Find all orders for this vendor that are DELIVERED and not yet settled
-    // Note: In a real system, we'd need a 'settlementStatus' column on Order or OrderItem.
-    // For this implementation, we'll assume orders with status DELIVERED are eligible.
-    const orders = await this.orderRepo.find({
-      where: { 
-        // In a real scenario, we'd join with OrderItems to filter by vendorId
-        // For simplicity, we'll assume Order has a vendorId or the tenant matches.
-        app_key, 
-        tenant_key, 
-        status: OrderStatus.DELIVERED 
-      }
+    // Sum of all net revenue that hasn't been settled in a payout
+    const revenues = await this.revenueRepo.find({
+      where: { vendorId, app_key, tenant_key, isSettled: false }
     });
 
-    // Subtract already requested/processed payouts
-    const processedPayouts = await this.payoutRepo.find({
-      where: { vendorId, app_key, tenant_key, status: PayoutStatus.PROCESSED }
-    });
-    
-    const pendingPayouts = await this.payoutRepo.find({
-      where: { vendorId, app_key, tenant_key, status: PayoutStatus.PENDING }
-    });
-
-    const totalRevenue = orders.reduce((acc, o) => acc + Number(o.totalAmount), 0);
-    const totalPayouts = [...processedPayouts, ...pendingPayouts].reduce((acc, p) => acc + Number(p.amount), 0);
+    const availableBalance = revenues.reduce((acc, r) => acc + Number(r.netAmount), 0);
 
     return {
-      totalRevenue,
-      totalPayouts,
-      availableBalance: totalRevenue - totalPayouts,
+      availableBalance,
+      revenueCount: revenues.length,
     };
   }
 
@@ -100,7 +83,13 @@ export class PayoutService {
         provider,
       });
 
-      // 2. Update status
+      // 2. Mark associated revenues as settled
+      await queryRunner.manager.update(VendorRevenue, 
+        { vendorId: request.vendorId, isSettled: false, app_key: context.app_key, tenant_key: context.tenant_key },
+        { isSettled: true }
+      );
+
+      // 3. Update payout status
       request.status = PayoutStatus.PROCESSED;
       request.transactionReference = payoutResult.metadata?.dynamicPayoutResponse?.id || 'EXTERNAL_SYNC';
       await queryRunner.manager.save(request);

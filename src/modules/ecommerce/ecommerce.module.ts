@@ -16,6 +16,7 @@ import { LogisticsModule } from './logistics/logistics.module';
 import { FinanceModule } from './finance/finance.module';
 import { OperationsModule } from './operations/operations.module';
 import { MarketplaceModule } from './marketplace/marketplace.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -34,9 +35,10 @@ import { MarketplaceModule } from './marketplace/marketplace.module';
     FinanceModule,
     OperationsModule,
     MarketplaceModule,
+    DashboardModule,
   ],
   controllers: [ProductCatalogController],
   providers: [ProductCatalogService],
-  exports: [ProductCatalogService, SalesModule, MarketingModule, LogisticsModule, FinanceModule, OperationsModule, MarketplaceModule],
+  exports: [ProductCatalogService, SalesModule, MarketingModule, LogisticsModule, FinanceModule, OperationsModule, MarketplaceModule, DashboardModule],
 })
 export class EcommerceModule { }

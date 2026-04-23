@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vendor } from '@/entities/marketplace/vendor.entity';
 import { PayoutRequest } from '@/entities/marketplace/payout-request.entity';
 import { CommissionRule } from '@/entities/marketplace/commission-rule.entity';
+import { VendorRevenue } from '@/entities/marketplace/vendor-revenue.entity';
 import { Order } from '@/entities/sales/order.entity';
 
 // Mongo Entities
@@ -14,6 +15,8 @@ import { FraudSignal } from '@/entities/mongo/fraud-signal.mongo-entity';
 import { PayoutService } from './payout/payout.service';
 import { CommissionService } from './commission/commission.service';
 import { FraudService } from './fraud/fraud.service';
+import { SettlementService } from './payout/settlement.service';
+import { SettlementProcessor } from './payout/settlement.processor';
 
 // Controllers
 import { PayoutController } from './payout/payout.controller';
@@ -28,6 +31,7 @@ import { FinanceModule } from '../finance/finance.module';
       Vendor,
       PayoutRequest,
       CommissionRule,
+      VendorRevenue,
       Order,
     ], 'postgres'),
     TypeOrmModule.forFeature([
@@ -43,7 +47,9 @@ import { FinanceModule } from '../finance/finance.module';
     PayoutService,
     CommissionService,
     FraudService,
+    SettlementService,
+    SettlementProcessor,
   ],
-  exports: [PayoutService, CommissionService, FraudService],
+  exports: [PayoutService, CommissionService, FraudService, SettlementService],
 })
 export class MarketplaceModule {}

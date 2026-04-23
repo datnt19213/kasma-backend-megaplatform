@@ -6,6 +6,7 @@ import { Warehouse } from '@/entities/logistics/warehouse.entity';
 import { WarehouseInventory } from '@/entities/logistics/warehouse-inventory.entity';
 import { InventoryBuffer } from '@/entities/mongo/inventory-buffer.mongo-entity';
 import { WarehouseLayout } from '@/entities/mongo/warehouse-layout.mongo-entity';
+import { LockService } from '@/shared/lock/lock.service';
 
 export interface TenantContext {
   app_key: string;
@@ -23,6 +24,7 @@ export class InventoryService {
     private readonly bufferRepo: Repository<InventoryBuffer>,
     @InjectRepository(WarehouseLayout, 'mongo')
     private readonly layoutRepo: Repository<WarehouseLayout>,
+    private readonly lockService: LockService,
   ) {}
 
   async createWarehouse(dto: any, ctx: TenantContext) {
@@ -35,27 +37,34 @@ export class InventoryService {
   }
 
   async adjustStock(dto: { warehouseId: string; productId: string; quantity: number }, ctx: TenantContext) {
-    // Verify warehouse belongs to tenant
-    const warehouse = await this.warehouseRepo.findOne({
-      where: { id: dto.warehouseId, app_key: ctx.app_key, tenant_key: ctx.tenant_key }
-    });
-    if (!warehouse) throw new Error('Warehouse not found or access denied');
+    const lockKey = `lock:inventory:${dto.warehouseId}:${dto.productId}`;
+    const lock = await this.lockService.acquire(lockKey, 5000);
 
-    let inventory = await this.inventoryRepo.findOne({
-      where: { warehouseId: dto.warehouseId, productId: dto.productId, app_key: ctx.app_key, tenant_key: ctx.tenant_key }
-    });
-
-    if (inventory) {
-      inventory.quantity += dto.quantity;
-    } else {
-      inventory = this.inventoryRepo.create({
-        ...dto,
-        app_key: ctx.app_key,
-        tenant_key: ctx.tenant_key,
+    try {
+      // Verify warehouse belongs to tenant
+      const warehouse = await this.warehouseRepo.findOne({
+        where: { id: dto.warehouseId, app_key: ctx.app_key, tenant_key: ctx.tenant_key }
       });
-    }
+      if (!warehouse) throw new Error('Warehouse not found or access denied');
 
-    return await this.inventoryRepo.save(inventory);
+      let inventory = await this.inventoryRepo.findOne({
+        where: { warehouseId: dto.warehouseId, productId: dto.productId, app_key: ctx.app_key, tenant_key: ctx.tenant_key }
+      });
+
+      if (inventory) {
+        inventory.quantity += dto.quantity;
+      } else {
+        inventory = this.inventoryRepo.create({
+          ...dto,
+          app_key: ctx.app_key,
+          tenant_key: ctx.tenant_key,
+        });
+      }
+
+      return await this.inventoryRepo.save(inventory);
+    } finally {
+      await lock.release();
+    }
   }
 
   async getInventoryLevels(warehouseId: string | undefined, ctx: TenantContext) {

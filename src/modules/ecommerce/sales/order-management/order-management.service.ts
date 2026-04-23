@@ -164,7 +164,18 @@ export class OrderManagementService {
     if (trackingNumber) order.trackingNumber = trackingNumber;
     if (paymentStatus) order.paymentStatus = paymentStatus;
     
-    return this.orderRepo.save(order);
+    const savedOrder = await this.orderRepo.save(order);
+
+    // Trigger auto-settlement if order is delivered
+    if (status === OrderStatus.DELIVERED) {
+      await this.salesQueue.add('order-settlement', { 
+        orderId: id,
+        app_key: order.app_key,
+        tenant_key: order.tenant_key
+      });
+    }
+
+    return savedOrder;
   }
 
   async cancelOrder(id: string) {
