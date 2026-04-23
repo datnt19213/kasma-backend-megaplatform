@@ -58,7 +58,18 @@
 			"item": [
 				{ "name": "List Products", "request": { "method": "GET", "url": "{{base_url}}/ecommerce/products/list" } },
 				{ "name": "Product Details", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/details", "body": { "mode": "raw", "raw": "{\"id\": \"{{product_id}}\"}" } } },
-				{ "name": "Create Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/create", "body": { "mode": "raw", "raw": "{\"code\": \"P-2026-X1\", \"name\": \"Smartphone Kasma Pro\", \"slug\": \"smartphone-kasma-pro\", \"shortDescription\": \"Flagship device with AI integration\", \"price\": 25000000, \"salePrice\": 22000000, \"isActive\": true, \"categoryId\": \"cat-tech-01\", \"vendorId\": \"v-global-001\", \"tags\": [\"tech\", \"mobile\"]}" } } },
+				{ 
+					"name": "Create Product", 
+					"request": { 
+						"method": "POST", 
+						"url": "{{base_url}}/ecommerce/products/create", 
+						"description": "API created for Product Catalog module. Fields: code (unique code), name, slug, shortDescription, price, salePrice, isActive, categoryId (Postgres UUID), vendorId (Marketplace UUID), tagIds (Array of UUIDs), specifications (Array of objects), attributes (Array of objects), variants (Array of variant objects), media (Array of media objects with mediaUrl).",
+						"body": { 
+							"mode": "raw", 
+							"raw": "{\n  \"code\": \"P-2026-X1\",\n  \"name\": \"Smartphone Kasma Pro\",\n  \"slug\": \"smartphone-kasma-pro\",\n  \"description\": \"Full flagship experience with AI core\",\n  \"shortDescription\": \"Flagship device with AI integration\",\n  \"price\": 25000000,\n  \"salePrice\": 22000000,\n  \"isActive\": true,\n  \"categoryId\": \"cat-tech-01\",\n  \"vendorId\": \"v-global-001\",\n  \"tagIds\": [\"tag-uuid-1\"],\n  \"specifications\": [{\"key\": \"CPU\", \"value\": \"Snapdragon 8 Gen 4\"}],\n  \"attributes\": [{\"name\": \"Color\", \"values\": [\"Titanium\", \"Ocean\"]}, {\"name\": \"Storage\", \"values\": [\"256GB\", \"512GB\"]}],\n  \"variants\": [{\n    \"sku\": \"KASMA-PRO-256-TITAN\",\n    \"price\": 25000000,\n    \"stock\": 100,\n    \"attributes\": {\"Color\": \"Titanium\", \"Storage\": \"256GB\"}\n  }],\n  \"media\": [{\n    \"mediaUrl\": \"https://media.kasma.com/p1.jpg\",\n    \"mediaType\": \"image\",\n    \"isMain\": true\n  }]\n}" 
+						} 
+					} 
+				},
 				{ "name": "Update Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/update", "body": { "mode": "raw", "raw": "{\"id\": \"{{product_id}}\", \"price\": 15500000}" } } },
 				{ "name": "Delete Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/delete", "body": { "mode": "raw", "raw": "{\"id\": \"{{product_id}}\"}" } } },
 				{ "name": "List Categories", "request": { "method": "GET", "url": "{{base_url}}/ecommerce/products/categories" } },
@@ -84,9 +95,31 @@
 					"name": "Order Management",
 					"item": [
 						{ "name": "Get My Orders", "request": { "method": "GET", "url": "{{base_url}}/sales/orders/me" } },
-						{ "name": "Checkout Order", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/checkout", "body": { "mode": "raw", "raw": "{\"shippingAddress\": {\"street\": \"123 Kasma Blvd\", \"city\": \"Hanoi\", \"country\": \"VN\", \"phone\": \"0987654321\", \"receiverName\": \"John Doe\"}, \"billingAddress\": {\"street\": \"123 Kasma Blvd\", \"city\": \"Hanoi\"}, \"paymentMethod\": \"STRIPE\", \"couponCode\": \"KASMA_WELCOME\", \"notes\": \"Deliver in office hours\", \"parentOrderId\": null}" } } },
+						{ 
+							"name": "Checkout Order", 
+							"request": { 
+								"method": "POST", 
+								"url": "{{base_url}}/sales/orders/checkout", 
+								"description": "Finalize order from cart. Fields: shippingAddress (JSON with street, city, country, phone, receiverName), billingAddress, paymentMethod (STRIPE/PAYPAL/WALLET), couponCode (Optional), notes (Internal/Shipping notes), parentOrderId (Optional, for splitting).",
+								"body": { 
+									"mode": "raw", 
+									"raw": "{\n  \"items\": [\n    {\"productId\": \"prod-123\", \"variantId\": \"var-456\", \"quantity\": 1}\n  ],\n  \"shippingAddress\": {\n    \"street\": \"123 Kasma Blvd\",\n    \"city\": \"Hanoi\",\n    \"country\": \"VN\",\n    \"phone\": \"0987654321\",\n    \"receiverName\": \"John Doe\"\n  },\n  \"billingAddress\": {\n    \"street\": \"123 Kasma Blvd\",\n    \"city\": \"Hanoi\"\n  },\n  \"paymentMethod\": \"STRIPE\",\n  \"couponCode\": \"KASMA_WELCOME\",\n  \"notes\": \"Deliver in office hours\",\n  \"parentOrderId\": null\n}" 
+								} 
+							} 
+						},
 						{ "name": "Order Details", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/details", "body": { "mode": "raw", "raw": "{\"orderId\": \"ord-123\"}" } } },
-						{ "name": "Update Status (Admin)", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/update-status", "body": { "mode": "raw", "raw": "{\"orderId\": \"ord-123\", \"status\": \"shipped\", \"trackingNumber\": \"TRK-KASMA-999\", \"paymentStatus\": \"paid\", \"internalNotes\": \"Package handled to GHN\"}" } } },
+						{ 
+							"name": "Update Status (Admin)", 
+							"request": { 
+								"method": "POST", 
+								"url": "{{base_url}}/sales/orders/update-status", 
+								"description": "Admin/System update order status. Triggers inventory sync and marketing notifications. Fields: id (Order UUID), status (pending/processing/shipped/delivered/cancelled/refunded), trackingNumber, paymentStatus (paid/unpaid), internalNotes.",
+								"body": { 
+									"mode": "raw", 
+									"raw": "{\n  \"id\": \"ord-123\",\n  \"status\": \"shipped\",\n  \"trackingNumber\": \"TRK-KASMA-999\",\n  \"paymentStatus\": \"paid\",\n  \"internalNotes\": \"Package handled to GHN\"\n}" 
+								} 
+							} 
+						},
 						{ "name": "Cancel Order", "request": { "method": "POST", "url": "{{base_url}}/sales/orders/cancel", "body": { "mode": "raw", "raw": "{\"orderId\": \"ord-123\"}" } } }
 					]
 				},
@@ -180,7 +213,18 @@
 					"name": "Inventory",
 					"item": [
 						{ "name": "Create Warehouse", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/warehouse/create", "body": { "mode": "raw", "raw": "{\"name\": \"Central Fulfillment Center\", \"code\": \"WH-Hanoi-01\", \"city\": \"Hanoi\", \"address\": \"Kasma Industrial Park\", \"capacity\": 5000, \"isActive\": true, \"managerName\": \"Alex Kim\"}" } } },
-						{ "name": "Adjust Stock", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/adjust", "body": { "mode": "raw", "raw": "{\"warehouseId\": \"wh-001\", \"productId\": \"prod-123\", \"quantity\": 10, \"reason\": \"Manual Correction\", \"reference\": \"DOC-2026-001\"}" } } },
+						{ 
+							"name": "Adjust Stock", 
+							"request": { 
+								"method": "POST", 
+								"url": "{{base_url}}/api/logistics/inventory/adjust", 
+								"description": "Atomic stock adjustment with Redlock. Positive quantity for restock, negative for reduction. Fields: warehouseId, productId, quantity, reason (Manual/System/RMA), reference (Document ID).",
+								"body": { 
+									"mode": "raw", 
+									"raw": "{\n  \"warehouseId\": \"wh-001\",\n  \"productId\": \"prod-123\",\n  \"quantity\": 10,\n  \"reason\": \"Manual Correction\",\n  \"reference\": \"DOC-2026-001\"\n}" 
+								} 
+							} 
+						},
 						{ "name": "List Inventory", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/list", "body": { "mode": "raw", "raw": "{\"warehouseId\": \"...\"}" } } },
 						{ "name": "Set Buffer", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/buffer/set", "body": { "mode": "raw", "raw": "{\"productId\": \"prod-123\", \"bufferQuantity\": 5}" } } },
 						{ "name": "Save Layout", "request": { "method": "POST", "url": "{{base_url}}/api/logistics/inventory/layout/save", "body": { "mode": "raw", "raw": "{\"warehouse_id\": \"wh-123\", \"aisles\": [{\"id\": \"A1\", \"shelves\": [\"S1\", \"S2\"]}]}" } } }
@@ -262,18 +306,48 @@
 			"name": "10. MARKETPLACE",
 			"item": [
 				{ "name": "Vendor Available Balance", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/payout/balance", "body": { "mode": "raw", "raw": "{\"vendorId\": \"v-001\"}" } } },
-				{ "name": "Request Payout", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/payout/request", "body": { "mode": "raw", "raw": "{\"amount\": 1000000, \"destinationInfo\": {\"bank\": \"VCB\", \"account\": \"12345678\"}}" } } },
+				{ 
+					"name": "Request Payout", 
+					"request": { 
+						"method": "POST", 
+						"url": "{{base_url}}/api/marketplace/payout/request", 
+						"description": "Vendor request for fund withdrawal. Fields: amount (Decimal), destinationInfo (JSON with bank, account, ownerName). System verifies balance before creating request.",
+						"body": { 
+							"mode": "raw", 
+							"raw": "{\n  \"amount\": 1000000,\n  \"destinationInfo\": {\n    \"bank\": \"VCB\",\n    \"account\": \"12345678\",\n    \"ownerName\": \"Kasma Store 01\"\n  }\n}" 
+						} 
+					} 
+				},
 				{ "name": "Approve & Process Payout", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/payout/process", "body": { "mode": "raw", "raw": "{\"requestId\": \"req-123\", \"provider\": \"STRIPE_PAYOUT\"}" } } },
 				{ "name": "Calculate Commission", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/commission/calculate", "body": { "mode": "raw", "raw": "{\"vendorId\": \"v-001\", \"orderTotal\": 500000}" } } },
 				{ "name": "List Payout Requests", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/payout/list", "body": { "mode": "raw", "raw": "{\"vendorId\": \"v-001\"}" } } },
-				{ "name": "Save Commission Rule", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/commission/rule/save", "body": { "mode": "raw", "raw": "{\"vendorId\": \"v-001\", \"categoryId\": \"cat-electronics\", \"rate\": 10.5, \"fixedFee\": 5000, \"isActive\": true, \"description\": \"Standard electronics fee\"}" } } },
+				{ 
+					"name": "Save Commission Rule", 
+					"request": { 
+						"method": "POST", 
+						"url": "{{base_url}}/api/marketplace/commission/rule/save", 
+						"description": "Define fee structure for vendors. Fields: vendorId, categoryId, rate (Percentage), fixedFee, isActive, description.",
+						"body": { 
+							"mode": "raw", 
+							"raw": "{\n  \"vendorId\": \"v-001\",\n  \"categoryId\": \"cat-electronics\",\n  \"rate\": 10.5,\n  \"fixedFee\": 5000,\n  \"isActive\": true,\n  \"description\": \"Standard electronics fee structure 2026\"\n}" 
+						} 
+					} 
+				},
 				{ "name": "Fraud Signals", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/fraud/signals" } }
 			]
 		},
 		{
 			"name": "11. DASHBOARD",
 			"item": [
-				{ "name": "Get Tenant Stats", "request": { "method": "POST", "url": "{{base_url}}/api/ecommerce/dashboard/stats" } }
+				{ 
+					"name": "Get Tenant Stats", 
+					"request": { 
+						"method": "POST", 
+						"url": "{{base_url}}/api/ecommerce/dashboard/stats",
+						"description": "Aggregated business intelligence for the current tenant. Returns revenue stats (Postgres), fraud signals (Mongo), and wallet movement (Mongo Ledger).",
+						"body": { "mode": "raw", "raw": "{}" }
+					} 
+				}
 			]
 		}
 	],
