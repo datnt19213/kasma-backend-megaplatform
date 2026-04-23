@@ -267,6 +267,12 @@
 				{ "name": "Calculate Commission", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/commission/calculate", "body": { "mode": "raw", "raw": "{\"vendorId\": \"v-001\", \"orderTotal\": 500000}" } } },
 				{ "name": "Fraud Signals", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/fraud/signals" } }
 			]
+		},
+		{
+			"name": "11. DASHBOARD",
+			"item": [
+				{ "name": "Get Tenant Stats", "request": { "method": "POST", "url": "{{base_url}}/api/ecommerce/dashboard/stats" } }
+			]
 		}
 	],
 	"auth": {

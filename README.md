@@ -106,8 +106,9 @@ graph TD
 - **Fraud & Risk Signals**: MongoDB-based risk scoring to identify suspicious orders, "bom" history, and unusual behaviors.
 
 ### ⚡ Performance & Scalability
-- **Redis Caching**: High-speed caching for expensive computation/lookups (e.g., Coupon validation, Promotion lists).
-- **Asynchronous Workers**: Offloading heavy operations to dedicated workers (Order confirmation, inventory sync, marketing notifications).
+- **Distributed Locking (Redlock)**: Strict concurrency control for sensitive resources (Inventory, Wallets) using Redis to prevent race conditions during high-traffic events.
+- **Asynchronous Workers (BullMQ)**: Offloading heavy operations to dedicated workers (Order confirmation, inventory sync, marketing notifications, revenue settlement).
+- **Analytics Hub**: Real-time business intelligence dashboard aggregating metrics across Postgres (Sales) and MongoDB (Fraud, Finance).
 
 ### 🛣️ API Standardization
 - **User-Centric Routes**: Modern `/me` prefix for all user-specific resources (e.g., `/sales/orders/me`, `/sales/cart/me`) replacing legacy `my-*` prefixes.
