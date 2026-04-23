@@ -85,6 +85,26 @@ graph TD
 - **Fulfillment**: Granular picking, packing, and labeling workflow with carrier integration (GHTK, GHN, etc.).
 - **Procurement & PO**: Purchase order management from draft to received status.
 
+### 💰 Finance & Payment Management
+- **Tax & VAT Compliance**: Hierarchical tax rule matching by country/region/zip with inclusive/exclusive calculation support.
+- **Multi-Currency**: Global commerce support with real-time exchange rate conversion and base currency synchronization.
+- **Store Credit & Wallet**: Integrated user wallet for internal balance management (Reloads, Refunds, Payments).
+- **Gift Card Engine**: Secure prepaid card registry with transactional redemption logic.
+- **Financial Ledger**: MongoDB-based high-volume auditing for all internal value movements.
+- **Transaction Bridge**: Seamless integration with the **Kasma Transaction** microservice for external payment gateways (Stripe, PayPal, COD).
+
+### 🛠️ Post-Purchase Operations
+- **Product Reviews & Ratings**: Customer feedback system with rating aggregation and visibility moderation.
+- **RMA (Return Merchandise)**: End-to-end return workflow from initial request to inspection findings (MongoDB) and restocking.
+- **Refund & Credit Memo**: Transaction-safe refunds via external gateways or internal wallet, including automated memo generation.
+- **Customer Support Tickets**: Multi-channel support system with ticket priority tracking and full conversation histories (MongoDB).
+
+### 🏪 Marketplace (Sàn TMĐT)
+- **Vendor/Seller Portal**: Multi-vendor management with status tracking and store-specific configurations.
+- **Commission Engine**: Hierarchical fee calculation (Vendor > Category > Global) for platform revenue.
+- **Seller Payout Settlement**: Robust reconciliation of delivered orders and automated settlement via **Kasma Transaction**.
+- **Fraud & Risk Signals**: MongoDB-based risk scoring to identify suspicious orders, "bom" history, and unusual behaviors.
+
 ### ⚡ Performance & Scalability
 - **Redis Caching**: High-speed caching for expensive computation/lookups (e.g., Coupon validation, Promotion lists).
 - **Asynchronous Workers**: Offloading heavy operations to dedicated workers (Order confirmation, inventory sync, marketing notifications).
@@ -122,12 +142,14 @@ src/
 ├── config/          # Application and environment configurations
 ├── database/        # Database connection and module setup
 ├── dto/             # Data Transfer Objects
-├── entities/        # Primary entities (Ecommerce, Sales, Marketing, Logistics, IAM - PostgreSQL)
+├── entities/        # Primary entities (Ecommerce, Sales, Marketing, Logistics, Finance, IAM - PostgreSQL)
+├── entities/        # Primary entities (Ecommerce, Sales, Marketing, Logistics, Finance, IAM - PostgreSQL)
 │   ├── ecommerce/
 │   ├── sales/
 │   ├── marketing/
-│   └── logistics/
-├── entities/mongo/  # MongoDB entities (Product Details, Cart, Wishlist, Abandoned Cart, Inventory Buffer, Warehouse Layout, Carrier Config)
+│   ├── logistics/
+│   └── finance/
+├── entities/mongo/  # MongoDB entities (Product Details, Cart, Wishlist, Abandoned Cart, Inventory Buffer, Warehouse Layout, Carrier Config, Tax Config, Exchange Rate, Finance Transaction)
 ├── modules/         # Core business logic (Auth, User, Ecommerce, Sales, Marketing, Logistics)
 ├── shared/          # Shared utilities and services
 └── main.ts          # Application entry point

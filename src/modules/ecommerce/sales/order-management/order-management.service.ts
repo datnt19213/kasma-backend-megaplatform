@@ -9,6 +9,7 @@ import { OrderItem } from '@/entities/sales/order-item.entity';
 import { ShoppingCart, CartItem } from '@/entities/mongo/shopping-cart.mongo-entity';
 import { ProductVariant } from '@/entities/ecommerce/product-variant.entity';
 import { CreateOrderDto } from '@/dto/sales-dto/sales.dto';
+import { TransactionBridgeService } from '../../finance/integration/transaction-bridge.service';
 
 @Injectable()
 export class OrderManagementService {
@@ -24,6 +25,7 @@ export class OrderManagementService {
     private readonly dataSource: DataSource,
     @InjectQueue('sales-queue') private readonly salesQueue: Queue,
     @InjectQueue('marketing-queue') private readonly marketingQueue: Queue,
+    private readonly paymentBridge: TransactionBridgeService,
   ) {}
 
   async createOrderFromCart(userId: string, dto: CreateOrderDto) {
@@ -116,7 +118,21 @@ export class OrderManagementService {
         await this.salesQueue.add('stock-sync', { orderId: order.id });
       }
 
-      return { success: true, orders: createdOrders };
+      // 5. Initiate External Payment if needed
+      let paymentSession = null;
+      if (dto.paymentMethod === 'STRIPE' || dto.paymentMethod === 'PAYPAL') {
+        // We use the first order created (parent) for the total payment if it was split
+        // or just the single order.
+        const totalToPay = createdOrders.reduce((sum, o) => sum + Number(o.totalAmount), 0);
+        paymentSession = await this.paymentBridge.initiateExternalPayment({
+          orderId: mainOrderId as string,
+          amount: totalToPay,
+          provider: dto.paymentMethod as any,
+          returnUrl: 'http://localhost:3000/ecommerce/checkout/success', // Placeholder
+        });
+      }
+
+      return { success: true, orders: createdOrders, paymentSession };
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw err;
@@ -140,12 +156,13 @@ export class OrderManagementService {
     });
   }
 
-  async updateOrderStatus(id: string, status: OrderStatus, trackingNumber?: string) {
+  async updateOrderStatus(id: string, status: OrderStatus, trackingNumber?: string, paymentStatus?: string) {
     const order = await this.orderRepo.findOne({ where: { id } });
     if (!order) throw new NotFoundException('Order not found');
 
     order.status = status;
     if (trackingNumber) order.trackingNumber = trackingNumber;
+    if (paymentStatus) order.paymentStatus = paymentStatus;
     
     return this.orderRepo.save(order);
   }

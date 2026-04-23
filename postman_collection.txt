@@ -212,6 +212,61 @@
 					]
 				}
 			]
+		},
+		{
+			"name": "8. FINANCE",
+			"item": [
+				{
+					"name": "Tax Management",
+					"item": [
+						{ "name": "Calculate Tax", "request": { "method": "POST", "url": "{{base_url}}/api/finance/tax/calculate", "body": { "mode": "raw", "raw": "{\"amount\": 1000, \"country\": \"VN\", \"region\": \"Hanoi\"}" } } },
+						{ "name": "Create Tax Rule", "request": { "method": "POST", "url": "{{base_url}}/api/finance/tax/rules/create", "body": { "mode": "raw", "raw": "{\"name\": \"VAT VN\", \"country\": \"VN\", \"rate\": 10}" } } }
+					]
+				},
+				{
+					"name": "Multi-Currency",
+					"item": [
+						{ "name": "List Currencies", "request": { "method": "POST", "url": "{{base_url}}/api/finance/currency/list" } },
+						{ "name": "Convert Currency", "request": { "method": "POST", "url": "{{base_url}}/api/finance/currency/convert", "body": { "mode": "raw", "raw": "{\"amount\": 100, \"from\": \"USD\", \"to\": \"VND\"}" } } },
+						{ "name": "Update Exchange Rate", "request": { "method": "POST", "url": "{{base_url}}/api/finance/currency/rates/update", "body": { "mode": "raw", "raw": "{\"from\": \"USD\", \"to\": \"VND\", \"rate\": 25450}" } } }
+					]
+				},
+				{
+					"name": "Wallet & Ledger",
+					"item": [
+						{ "name": "My Wallet Balance", "request": { "method": "POST", "url": "{{base_url}}/api/finance/wallet/balance" } },
+						{ "name": "Redeem Gift Card", "request": { "method": "POST", "url": "{{base_url}}/api/finance/wallet/redeem", "body": { "mode": "raw", "raw": "{\"code\": \"GC-KASMA-2026\"}" } } },
+						{ "name": "My Transaction Ledger", "request": { "method": "POST", "url": "{{base_url}}/api/finance/wallet/ledger" } }
+					]
+				}
+			]
+		},
+		{
+			"name": "9. OPERATIONS",
+			"item": [
+				{ "name": "Create Review", "request": { "method": "POST", "url": "{{base_url}}/api/operations/review/create" } },
+				{ "name": "List Reviews", "request": { "method": "POST", "url": "{{base_url}}/api/operations/review/list" } },
+				{ "name": "Product Rating Summary", "request": { "method": "POST", "url": "{{base_url}}/api/operations/review/rating-summary" } },
+				{ "name": "Request RMA", "request": { "method": "POST", "url": "{{base_url}}/api/operations/rma/request" } },
+				{ "name": "Inspect RMA", "request": { "method": "POST", "url": "{{base_url}}/api/operations/rma/inspect" } },
+				{ "name": "Update RMA Status (with Restock)", "request": { "method": "POST", "url": "{{base_url}}/api/operations/rma/update-status" } },
+				{ "name": "Process Refund", "request": { "method": "POST", "url": "{{base_url}}/api/operations/refund/process" } },
+				{ "name": "Create Ticket", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/create" } },
+				{ "name": "Add Message to Ticket", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/message" } },
+				{ "name": "List Tickets", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/list" } },
+				{ "name": "Ticket Conversation", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/conversation" } },
+				{ "name": "Close Ticket", "request": { "method": "POST", "url": "{{base_url}}/api/operations/support/ticket/close" } }
+			]
+		},
+		{
+			"name": "10. MARKETPLACE",
+			"item": [
+				{ "name": "Vendor Available Balance", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/payout/balance", "body": { "mode": "raw", "raw": "{\"vendorId\": \"v-001\"}" } } },
+				{ "name": "Request Payout", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/payout/request", "body": { "mode": "raw", "raw": "{\"amount\": 1000000, \"destinationInfo\": {\"bank\": \"VCB\", \"account\": \"12345678\"}}" } } },
+				{ "name": "Approve & Process Payout", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/payout/process", "body": { "mode": "raw", "raw": "{\"requestId\": \"req-123\", \"provider\": \"STRIPE_PAYOUT\"}" } } },
+				{ "name": "Calculate Commission", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/commission/calculate", "body": { "mode": "raw", "raw": "{\"vendorId\": \"v-001\", \"orderTotal\": 500000}" } } },
+				{ "name": "Fraud Signals", "request": { "method": "POST", "url": "{{base_url}}/api/marketplace/fraud/signals" } }
+			]
 		}
 	],
 	"auth": {

@@ -12,9 +12,16 @@ import { MultiTenantEntity } from '../base/multi-tenant.entity';
 import { ProductCategory } from '@/entities/ecommerce/product-category.entity';
 import { ProductTag } from '@/entities/ecommerce/product-tag.entity';
 import { ProductVariant } from '@/entities/ecommerce/product-variant.entity';
+import { Vendor } from '@/entities/marketplace/vendor.entity';
 
 @Entity('products')
 export class Product extends MultiTenantEntity {
+  @Column({ name: 'vendor_id', nullable: true })
+  vendorId: string;
+
+  @ManyToOne(() => Vendor, (vendor) => vendor.products, { nullable: true })
+  @JoinColumn({ name: 'vendor_id' })
+  vendor: Vendor;
   @Column({ unique: true, nullable: true })
   code: string;
 

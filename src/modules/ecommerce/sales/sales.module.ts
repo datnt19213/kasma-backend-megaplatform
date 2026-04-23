@@ -14,16 +14,18 @@ import { ProductVariant } from '@/entities/ecommerce/product-variant.entity';
 import { ShoppingCartController } from './shopping-cart/shopping-cart.controller';
 import { ShoppingCartService } from './shopping-cart/shopping-cart.service';
 import { OrderManagementController } from './order-management/order-management.controller';
+import { InternalOrderController } from './order-management/internal-order.controller';
 import { OrderManagementService } from './order-management/order-management.service';
 import { WishlistController } from './wishlist/wishlist.controller';
 import { WishlistService } from './wishlist/wishlist.service';
 import { RecurringService, PreOrderService } from './recurring-preorder.service';
 import { SubscriptionController, PreOrderController } from './recurring-preorder.controller';
 import { SalesProcessor } from './sales.processor';
-import { type Cache } from 'cache-manager';
+import { FinanceModule } from '../finance/finance.module';
 
 @Module({
   imports: [
+    FinanceModule,
     TypeOrmModule.forFeature([
       Order,
       OrderItem,
@@ -44,6 +46,7 @@ import { type Cache } from 'cache-manager';
   controllers: [
     ShoppingCartController,
     OrderManagementController,
+    InternalOrderController,
     WishlistController,
     SubscriptionController,
     PreOrderController,

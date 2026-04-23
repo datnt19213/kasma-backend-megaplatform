@@ -13,6 +13,9 @@ import { SalesModule } from './sales/sales.module';
 
 import { MarketingModule } from './marketing/marketing.module';
 import { LogisticsModule } from './logistics/logistics.module';
+import { FinanceModule } from './finance/finance.module';
+import { OperationsModule } from './operations/operations.module';
+import { MarketplaceModule } from './marketplace/marketplace.module';
 
 @Module({
   imports: [
@@ -28,9 +31,12 @@ import { LogisticsModule } from './logistics/logistics.module';
     SalesModule,
     MarketingModule,
     LogisticsModule,
+    FinanceModule,
+    OperationsModule,
+    MarketplaceModule,
   ],
   controllers: [ProductCatalogController],
   providers: [ProductCatalogService],
-  exports: [ProductCatalogService, SalesModule, MarketingModule, LogisticsModule],
+  exports: [ProductCatalogService, SalesModule, MarketingModule, LogisticsModule, FinanceModule, OperationsModule, MarketplaceModule],
 })
 export class EcommerceModule { }

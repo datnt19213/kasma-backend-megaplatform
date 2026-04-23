@@ -15,9 +15,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MailModule } from '../mail/mail.module';
 import { EcommerceModule } from '../ecommerce/ecommerce.module';
+import { LockModule } from '@/shared/lock/lock.module';
 
 @Module({
   imports: [
+    LockModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
