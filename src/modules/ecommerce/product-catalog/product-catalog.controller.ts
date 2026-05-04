@@ -5,53 +5,59 @@ import {
   Body,
   UseGuards,
   Query,
+  Req,
+  Param,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { ProductCatalogService } from '@/modules/ecommerce/product-catalog/product-catalog.service';
 import { CreateProductDto, UpdateProductDto, BulkCompareDto, ProductFilterDto } from '@/dto/ecommerce-dto/product.dto';
 
-@Controller('ecommerce/products')
+interface RequestWithUser extends Request {
+  user: {
+    id: string;
+    app_key: string;
+    tenant_key: string;
+  };
+}
+
+@Controller('api/ecommerce/products')
 @UseGuards(JwtAuthGuard)
 export class ProductCatalogController {
   constructor(private readonly catalogService: ProductCatalogService) { }
 
   @Post('create')
-  async createProduct(@Body() dto: CreateProductDto) {
-    return await this.catalogService.createProduct(dto);
+  async createProduct(@Body() dto: CreateProductDto, @Req() req: RequestWithUser) {
+    const ctx = { app_key: req.user.app_key, tenant_key: req.user.tenant_key };
+    return await this.catalogService.createProduct(dto, ctx);
   }
 
-  @Post('update')
-  async updateProduct(@Body() body: { id: string; data: UpdateProductDto }) {
-    return await this.catalogService.updateProduct(body.id, body.data);
+  @Post(':id/update')
+  async updateProduct(@Param('id') id: string, @Body() data: UpdateProductDto, @Req() req: RequestWithUser) {
+    const ctx = { app_key: req.user.app_key, tenant_key: req.user.tenant_key };
+    return await this.catalogService.updateProduct(id, data as any, ctx);
   }
 
-  @Post('delete')
-  async deleteProduct(@Body() body: { id: string }) {
-    return await this.catalogService.deleteProduct(body.id);
+  @Post(':id/delete')
+  async deleteProduct(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const ctx = { app_key: req.user.app_key, tenant_key: req.user.tenant_key };
+    return await this.catalogService.deleteProduct(id, ctx);
   }
 
   @Get('list')
-  async listProducts(@Query() filter: ProductFilterDto) {
-    return await this.catalogService.getAllProducts(filter);
+  async listProducts(@Query() filter: ProductFilterDto, @Req() req: RequestWithUser) {
+    const ctx = { app_key: req.user.app_key, tenant_key: req.user.tenant_key };
+    return await this.catalogService.getAllProducts(filter, ctx);
   }
 
-  @Post('details')
-  async getProductDetails(@Body() body: { id: string }) {
-    return await this.catalogService.getProductById(body.id);
+  @Get(':id')
+  async getProductDetails(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const ctx = { app_key: req.user.app_key, tenant_key: req.user.tenant_key };
+    return await this.catalogService.getProductById(id, ctx);
   }
 
-  @Get('categories')
-  async listCategories() {
-    return await this.catalogService.getAllCategories();
-  }
-
-  @Post('compare')
-  async compareProducts(@Body() dto: BulkCompareDto) {
-    return await this.catalogService.compareProducts(dto.productIds);
-  }
-
-  @Get('feed')
-  async generateFeed() {
-    return await this.catalogService.generateFeed();
+  @Get('categories/list')
+  async listCategories(@Req() req: RequestWithUser) {
+    const ctx = { app_key: req.user.app_key, tenant_key: req.user.tenant_key };
+    return await this.catalogService.getAllCategories(ctx);
   }
 }

@@ -99,11 +99,30 @@ graph TD
 - **Refund & Credit Memo**: Transaction-safe refunds via external gateways or internal wallet, including automated memo generation.
 - **Customer Support Tickets**: Multi-channel support system with ticket priority tracking and full conversation histories (MongoDB).
 
-### 🏪 Marketplace (Sàn TMĐT)
-- **Vendor/Seller Portal**: Multi-vendor management with status tracking and store-specific configurations.
-- **Commission Engine**: Hierarchical fee calculation (Vendor > Category > Global) for platform revenue.
-- **Seller Payout Settlement**: Robust reconciliation of delivered orders and automated settlement via **Kasma Transaction**.
-- **Fraud & Risk Signals**: MongoDB-based risk scoring to identify suspicious orders, "bom" history, and unusual behaviors.
+### 📝 Blog & Content Management (CMS)
+- **Article Editor**: Professional WYSIWYG/Markdown support with dual-database persistence (Postgres for indexing, MongoDB for rich content).
+- **Taxonomy Management**: Hierarchical categories and multi-tagging system for article organization.
+- **Media Library**: Integrated media management with support for multiple providers (Cloudinary/KEDIA) via strategy keys.
+- **Revision Control**: Comprehensive history tracking (MongoDB) allowing for article comparison and restoration to any point in time.
+- **Scheduling**: Automated publishing engine for future-dated articles.
+- **Post Formats**: Support for diverse content types including Standard, Video, Gallery, Audio, and Quote formats.
+- **SEO & Metadata**: Integrated metadata manager (Meta Title, Description, OG) with automatic XML sitemap generation.
+- **URL Redirection**: Automated 301/302 redirect tracking for slug changes to preserve search ranking.
+- **Keyword Analysis**: Built-in utility to analyze keyword density and provide SEO optimization suggestions.
+- **Navigation & Layout**: Multi-level menu manager (Header/Footer) and dynamic sidebar widget engine.
+- **Content Enrichment**: Automatic Table of Contents (ToC) extraction and related posts suggestion engine based on tag similarity.
+- **Content Analytics**: High-performance engagement tracking (Views, Avg Duration, Bounce Rate) and search query logging using MongoDB.
+- **Advanced Distribution**: RSS 2.0 feed generation, Guest Post portal with moderation workflow, and internal Shortlink generator for social sharing.
+
+### 🎓 Learning & Education
+- **Course Management**: Structured syllabus management (Course > Chapter > Lesson) with support for rich learning materials.
+- **Flexible Media Storage**: Seamlessly toggle between Kedia (Internal) and Cloudinary storage for video lessons, PDFs, and assets.
+- **Content Engagement**: Progress tracking with resume playback, timestamped note-taking, and drip content unlocking.
+- **Assessment & Grading**: Comprehensive quiz/exam engine with auto-grading for objective questions and multi-provider assignment uploads.
+- **Credential & Certification**: Automated PDF certificate generation upon course completion with a public verification portal and digital badges.
+- **Operation & Management**: Multi-tenant enrollment approval workflows, instructor analytics dashboards, and structured learning path skill-mapping.
+- **Reporting & Analytics**: Comprehensive cross-database insights into student engagement, completion rates, and instructor revenue trends.
+- **Advanced Engagement**: Gamification engine with XP, leveling, and leaderboards, plus SCORM/xAPI support for standard e-learning content.
 
 ### ⚡ Performance & Scalability
 - **Distributed Locking (Redlock)**: Strict concurrency control for sensitive resources (Inventory, Wallets) using Redis to prevent race conditions during high-traffic events.
@@ -143,15 +162,15 @@ src/
 ├── config/          # Application and environment configurations
 ├── database/        # Database connection and module setup
 ├── dto/             # Data Transfer Objects
-├── entities/        # Primary entities (Ecommerce, Sales, Marketing, Logistics, Finance, IAM - PostgreSQL)
-├── entities/        # Primary entities (Ecommerce, Sales, Marketing, Logistics, Finance, IAM - PostgreSQL)
+├── entities/        # Primary entities (Ecommerce, Sales, Marketing, Logistics, Finance, IAM, Blog - PostgreSQL)
 │   ├── ecommerce/
 │   ├── sales/
 │   ├── marketing/
 │   ├── logistics/
-│   └── finance/
-├── entities/mongo/  # MongoDB entities (Product Details, Cart, Wishlist, Abandoned Cart, Inventory Buffer, Warehouse Layout, Carrier Config, Tax Config, Exchange Rate, Finance Transaction)
-├── modules/         # Core business logic (Auth, User, Ecommerce, Sales, Marketing, Logistics)
+│   ├── finance/
+│   └── blog/
+├── entities/mongo/  # MongoDB entities (Product Details, Blog Details, Revisions, Cart, Wishlist...)
+├── modules/         # Core business logic (Auth, User, Ecommerce, Sales, Marketing, Logistics, Blog)
 ├── shared/          # Shared utilities and services
 └── main.ts          # Application entry point
 ```

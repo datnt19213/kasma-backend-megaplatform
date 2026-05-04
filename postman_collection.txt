@@ -56,25 +56,23 @@
 		{
 			"name": "4. PRODUCT CATALOG",
 			"item": [
-				{ "name": "List Products", "request": { "method": "GET", "url": "{{base_url}}/ecommerce/products/list" } },
-				{ "name": "Product Details", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/details", "body": { "mode": "raw", "raw": "{\"id\": \"{{product_id}}\"}" } } },
+				{ "name": "List Products", "request": { "method": "GET", "url": "{{base_url}}/api/ecommerce/products/list" } },
+				{ "name": "Product Details", "request": { "method": "GET", "url": "{{base_url}}/api/ecommerce/products/{{product_id}}" } },
 				{ 
 					"name": "Create Product", 
 					"request": { 
 						"method": "POST", 
-						"url": "{{base_url}}/ecommerce/products/create", 
-						"description": "API created for Product Catalog module. Fields: code (unique code), name, slug, shortDescription, price, salePrice, isActive, categoryId (Postgres UUID), vendorId (Marketplace UUID), tagIds (Array of UUIDs), specifications (Array of objects), attributes (Array of objects), variants (Array of variant objects), media (Array of media objects with mediaUrl).",
+						"url": "{{base_url}}/api/ecommerce/products/create", 
+						"description": "Standardized multi-tenant creation with Content Sanitization.",
 						"body": { 
 							"mode": "raw", 
-							"raw": "{\n  \"code\": \"P-2026-X1\",\n  \"name\": \"Smartphone Kasma Pro\",\n  \"slug\": \"smartphone-kasma-pro\",\n  \"description\": \"Full flagship experience with AI core\",\n  \"shortDescription\": \"Flagship device with AI integration\",\n  \"price\": 25000000,\n  \"salePrice\": 22000000,\n  \"isActive\": true,\n  \"categoryId\": \"cat-tech-01\",\n  \"vendorId\": \"v-global-001\",\n  \"tagIds\": [\"tag-uuid-1\"],\n  \"specifications\": [{\"key\": \"CPU\", \"value\": \"Snapdragon 8 Gen 4\"}],\n  \"attributes\": [{\"name\": \"Color\", \"values\": [\"Titanium\", \"Ocean\"]}, {\"name\": \"Storage\", \"values\": [\"256GB\", \"512GB\"]}],\n  \"variants\": [{\n    \"sku\": \"KASMA-PRO-256-TITAN\",\n    \"price\": 25000000,\n    \"stock\": 100,\n    \"attributes\": {\"Color\": \"Titanium\", \"Storage\": \"256GB\"}\n  }],\n  \"media\": [{\n    \"mediaUrl\": \"https://media.kasma.com/p1.jpg\",\n    \"mediaType\": \"image\",\n    \"isMain\": true\n  }]\n}" 
+							"raw": "{\n  \"name\": \"Smartphone Kasma Pro\",\n  \"slug\": \"smartphone-kasma-pro\",\n  \"description\": \"Full flagship experience with AI core\",\n  \"price\": 25000000,\n  \"isActive\": true,\n  \"categoryId\": \"{{category_id}}\",\n  \"specifications\": [{\"key\": \"CPU\", \"value\": \"Snapdragon 8 Gen 4\"}],\n  \"attributes\": [{\"name\": \"Color\", \"values\": [\"Titanium\", \"Ocean\"]}],\n  \"media\": [{\n    \"mediaUrl\": \"https://media.kasma.com/p1.jpg\",\n    \"mediaType\": \"image\",\n    \"isMain\": true\n  }]\n}" 
 						} 
 					} 
 				},
-				{ "name": "Update Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/update", "body": { "mode": "raw", "raw": "{\"id\": \"{{product_id}}\", \"price\": 15500000}" } } },
-				{ "name": "Delete Product", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/delete", "body": { "mode": "raw", "raw": "{\"id\": \"{{product_id}}\"}" } } },
-				{ "name": "List Categories", "request": { "method": "GET", "url": "{{base_url}}/ecommerce/products/categories" } },
-				{ "name": "Compare Products", "request": { "method": "POST", "url": "{{base_url}}/ecommerce/products/compare", "body": { "mode": "raw", "raw": "{\"productIds\": [\"p1\", \"p2\"]}" } } },
-				{ "name": "Generate XML Feed", "request": { "method": "GET", "url": "{{base_url}}/ecommerce/products/feed" } }
+				{ "name": "Update Product", "request": { "method": "POST", "url": "{{base_url}}/api/ecommerce/products/{{product_id}}/update", "body": { "mode": "raw", "raw": "{\"name\": \"New Name\", \"price\": 26000000}" } } },
+				{ "name": "Delete Product", "request": { "method": "POST", "url": "{{base_url}}/api/ecommerce/products/{{product_id}}/delete" } },
+				{ "name": "List Categories", "request": { "method": "GET", "url": "{{base_url}}/api/ecommerce/products/categories/list" } }
 			]
 		},
 		{
@@ -347,6 +345,189 @@
 						"description": "Aggregated business intelligence for the current tenant. Returns revenue stats (Postgres), fraud signals (Mongo), and wallet movement (Mongo Ledger).",
 						"body": { "mode": "raw", "raw": "{}" }
 					} 
+				}
+			]
+		},
+		{
+			"name": "12. BLOG",
+			"item": [
+				{
+					"name": "Article Editor",
+					"item": [
+						{ "name": "List Articles", "request": { "method": "GET", "url": "{{base_url}}/api/blog/articles" } },
+						{ 
+							"name": "Create Article", 
+							"request": { 
+								"method": "POST", 
+								"url": "{{base_url}}/api/blog/articles/create",
+								"description": "Create a new blog article. Fields: title, slug, status (DRAFT/PUBLISHED/SCHEDULED), post_format (STANDARD/VIDEO/GALLERY/AUDIO/QUOTE), featuredImage (URL), publishedAt (ISO date for scheduling), categoryId, content (HTML/Markdown), summary, format_data (Dynamic format specific data), seo (meta_title, meta_description, keywords, og_image), custom_fields (JSON).",
+								"body": { 
+									"mode": "raw", 
+									"raw": "{\n  \"title\": \"Kasma Mega Platform: The Future of SaaS\",\n  \"slug\": \"future-of-saas\",\n  \"status\": \"DRAFT\",\n  \"post_format\": \"STANDARD\",\n  \"featuredImage\": \"https://media.kasma.com/featured.jpg\",\n  \"categoryId\": \"uuid-cat-123\",\n  \"content\": \"<h1>Content here</h1>\",\n  \"summary\": \"Brief overview of the article\",\n  \"seo\": {\n    \"meta_title\": \"Future of SaaS | Kasma\",\n    \"meta_description\": \"Detailed look at SaaS evolution\",\n    \"keywords\": [\"saas\", \"kasma\", \"cloud\"]\n  },\n  \"format_data\": {},\n  \"custom_fields\": {\n    \"sponsored\": false\n  }\n}" 
+								}
+							} 
+						},
+						{ "name": "Get Article Details", "request": { "method": "GET", "url": "{{base_url}}/api/blog/articles/{{article_id}}" } },
+						{ 
+							"name": "Update Article", 
+							"request": { 
+								"method": "POST", 
+								"url": "{{base_url}}/api/blog/articles/{{article_id}}/update",
+								"description": "Update article content and core info. Triggers revision snapshot creation. Fields: same as create + revision_note.",
+								"body": { 
+									"mode": "raw", 
+									"raw": "{\n  \"title\": \"Updated Title\",\n  \"revision_note\": \"Fixed typos in intro\"\n}" 
+								}
+							} 
+						}
+					]
+				},
+				{
+					"name": "Taxonomy",
+					"item": [
+						{ "name": "Get Categories", "request": { "method": "GET", "url": "{{base_url}}/api/blog/taxonomy/categories" } },
+						{ "name": "Create Category", "request": { "method": "POST", "url": "{{base_url}}/api/blog/taxonomy/categories/create", "body": { "mode": "raw", "raw": "{\"name\": \"Technology\", \"slug\": \"tech\", \"parentId\": null}" } } },
+						{ "name": "Get Tags", "request": { "method": "GET", "url": "{{base_url}}/api/blog/taxonomy/tags" } },
+						{ "name": "Create Tag", "request": { "method": "POST", "url": "{{base_url}}/api/blog/taxonomy/tags/create", "body": { "mode": "raw", "raw": "{\"name\": \"AI\", \"slug\": \"ai\"}" } } }
+					]
+				},
+				{
+					"name": "Media Library",
+					"item": [
+						{ 
+							"name": "Upload Media", 
+							"request": { 
+								"method": "POST", 
+								"url": "{{base_url}}/api/media/upload",
+								"description": "Upload file to Cloudinary or KEDIA. Body: form-data with 'file' and 'provider' (CLOUDINARY/KEDIA).",
+								"body": { 
+									"mode": "formdata", 
+									"formdata": [
+										{ "key": "file", "type": "file", "src": [] },
+										{ "key": "provider", "value": "KEDIA", "type": "text" }
+									]
+								}
+							} 
+						}
+					]
+				},
+				{
+					"name": "SEO",
+					"item": [
+						{ "name": "Get Redirects", "request": { "method": "GET", "url": "{{base_url}}/api/blog/seo/redirects" } },
+						{ "name": "Analyze Keywords", "request": { "method": "POST", "url": "{{base_url}}/api/blog/seo/analyze", "body": { "mode": "raw", "raw": "{\"content\": \"<h1>SEO Best Practices</h1><p>SEO is important for blog ranking.</p>\", \"keyword\": \"SEO\"}" } } },
+						{ "name": "Get Sitemap", "request": { "method": "GET", "url": "{{base_url}}/api/blog/seo/sitemap.xml?baseUrl=https://mysite.com" } }
+					]
+				},
+				{
+					"name": "Display",
+					"item": [
+						{ "name": "Get Menu", "request": { "method": "GET", "url": "{{base_url}}/api/blog/display/menu/HEADER" } },
+						{ "name": "Save Menu", "request": { "method": "POST", "url": "{{base_url}}/api/blog/display/menu/save", "body": { "mode": "raw", "raw": "{\"name\": \"Main Menu\", \"slug\": \"main-menu\", \"location\": \"HEADER\", \"items\": [{\"label\": \"Home\", \"url\": \"/\"}]}" } } },
+						{ "name": "Get Widgets", "request": { "method": "GET", "url": "{{base_url}}/api/blog/display/widgets" } },
+						{ "name": "Get Related Posts", "request": { "method": "GET", "url": "{{base_url}}/api/blog/display/related/{{article_id}}" } },
+						{ "name": "Generate ToC", "request": { "method": "POST", "url": "{{base_url}}/api/blog/display/toc", "body": { "mode": "raw", "raw": "{\"content\": \"<h1>Intro</h1><h2>Setup</h2>\"}" } } }
+					]
+				},
+				{
+					"name": "Analytics",
+					"item": [
+						{ "name": "Record View", "request": { "method": "POST", "url": "{{base_url}}/api/blog/analytics/view", "body": { "mode": "raw", "raw": "{\"articleId\": \"{{article_id}}\", \"sessionId\": \"sess-123\", \"metadata\": {\"browser\": \"Chrome\"}}" } } },
+						{ "name": "Heartbeat", "request": { "method": "POST", "url": "{{base_url}}/api/blog/analytics/heartbeat/{{log_id}}", "body": { "mode": "raw", "raw": "{\"duration\": 10}" } } },
+						{ "name": "Log Search", "request": { "method": "POST", "url": "{{base_url}}/api/blog/analytics/search", "body": { "mode": "raw", "raw": "{\"query\": \"kasma mega\", \"results_count\": 5}" } } },
+						{ "name": "Get Article Stats", "request": { "method": "GET", "url": "{{base_url}}/api/blog/analytics/stats/{{article_id}}" } },
+						{ "name": "Popular Searches", "request": { "method": "GET", "url": "{{base_url}}/api/blog/analytics/popular-searches" } }
+					]
+				},
+				{
+					"name": "Advanced",
+					"item": [
+						{ "name": "Get RSS Feed", "request": { "method": "GET", "url": "{{base_url}}/api/blog/advanced/rss.xml?siteUrl=https://kasma.io" } },
+						{ "name": "Submit Guest Post", "request": { "method": "POST", "url": "{{base_url}}/api/blog/advanced/guest-submit", "body": { "mode": "raw", "raw": "{\"title\": \"Guest Article\", \"slug\": \"guest-article\", \"categoryId\": \"{{cat_id}}\", \"content\": \"Guest content\"}" } } },
+						{ "name": "Create Shortlink", "request": { "method": "POST", "url": "{{base_url}}/api/blog/advanced/shortlink", "body": { "mode": "raw", "raw": "{\"target_url\": \"https://kasma.io/blog/my-article\"}" } } },
+						{ "name": "Resolve Shortlink", "request": { "method": "GET", "url": "{{base_url}}/api/blog/advanced/s/{{short_code}}" } }
+				}
+			]
+		},
+		{
+			"name": "Learning",
+			"item": [
+				{
+					"name": "Course Management",
+					"item": [
+						{ "name": "Create Course", "request": { "method": "POST", "url": "{{base_url}}/api/learning/courses", "body": { "mode": "raw", "raw": "{\"title\": \"Fullstack Development\", \"slug\": \"fullstack-dev\", \"price\": 99.99}" } } },
+						{ "name": "Get Course Details", "request": { "method": "GET", "url": "{{base_url}}/api/learning/courses/{{course_id}}" } },
+						{ "name": "Upload Thumbnail", "request": { "method": "POST", "url": "{{base_url}}/api/learning/courses/{{course_id}}/thumbnail?provider=CLOUDINARY" } }
+					]
+				},
+				{
+					"name": "Curriculum",
+					"item": [
+						{ "name": "Add Chapter", "request": { "method": "POST", "url": "{{base_url}}/api/learning/curriculum/course/{{course_id}}/chapters", "body": { "mode": "raw", "raw": "{\"title\": \"Introduction\", \"order\": 1}" } } },
+						{ "name": "Add Lesson", "request": { "method": "POST", "url": "{{base_url}}/api/learning/curriculum/chapter/{{chapter_id}}/lessons", "body": { "mode": "raw", "raw": "{\"title\": \"Getting Started\", \"slug\": \"getting-started\", \"order\": 1, \"is_preview\": true}" } } },
+						{ "name": "Upload Material", "request": { "method": "POST", "url": "{{base_url}}/api/learning/curriculum/lesson/{{lesson_id}}/materials?type=VIDEO&provider=KEDIA" } },
+						{ "name": "Get Lesson Materials", "request": { "method": "GET", "url": "{{base_url}}/api/learning/curriculum/lesson/{{lesson_id}}/materials" } },
+						{ "name": "Reorder Chapters", "request": { "method": "POST", "url": "{{base_url}}/api/learning/curriculum/reorder/chapters", "body": { "mode": "raw", "raw": "{\"ids\": [\"id1\", \"id2\"]}" } } }
+					]
+				},
+				{
+					"name": "Experience & Player",
+					"item": [
+						{ "name": "Get Lesson Access", "request": { "method": "GET", "url": "{{base_url}}/api/learning/player/lesson/{{lesson_id}}" } },
+						{ "name": "Update Progress", "request": { "method": "POST", "url": "{{base_url}}/api/learning/player/progress", "body": { "mode": "raw", "raw": "{\"lesson_id\": \"{{lesson_id}}\", \"course_id\": \"{{course_id}}\", \"position\": 120, \"completed\": false}" } } },
+						{ "name": "Get Course Progress %", "request": { "method": "GET", "url": "{{base_url}}/api/learning/player/course/{{course_id}}/progress" } },
+						{ "name": "Add Note at Timestamp", "request": { "method": "POST", "url": "{{base_url}}/api/learning/player/notes", "body": { "mode": "raw", "raw": "{\"lesson_id\": \"{{lesson_id}}\", \"timestamp\": 85, \"content\": \"Important definition here!\"}" } } },
+						{ "name": "Get My Lesson Notes", "request": { "method": "GET", "url": "{{base_url}}/api/learning/player/lesson/{{lesson_id}}/notes" } }
+					]
+				},
+				{
+					"name": "Assessment & Grading",
+					"item": [
+						{ "name": "Start Attempt", "request": { "method": "POST", "url": "{{base_url}}/api/learning/assessments/{{assessment_id}}/start" } },
+						{ "name": "Submit Quiz/Exam", "request": { "method": "POST", "url": "{{base_url}}/api/learning/assessments/attempt/{{attempt_id}}/submit", "body": { "mode": "raw", "raw": "{\"answers\": {\"q1_id\": \"A\", \"q2_id\": [1, 3]}}" } } },
+						{ "name": "Upload Assignment File", "request": { "method": "POST", "url": "{{base_url}}/api/learning/assessments/attempt/{{attempt_id}}/upload?provider=CLOUDINARY" } }
+					]
+				},
+				{
+					"name": "Credential & Certification",
+					"item": [
+						{ "name": "Generate Certificate", "request": { "method": "POST", "url": "{{base_url}}/api/learning/credentials/certificates/generate/{{course_id}}" } },
+						{ "name": "Get My Certificates", "request": { "method": "GET", "url": "{{base_url}}/api/learning/credentials/certificates/my" } },
+						{ "name": "Verify Certificate", "request": { "method": "GET", "url": "{{base_url}}/api/learning/credentials/certificates/verify/{{verification_code}}" } }
+					]
+				},
+				{
+					"name": "Interaction & Engagement",
+					"item": [
+						{ "name": "Create Forum Thread", "request": { "method": "POST", "url": "{{base_url}}/api/learning/interaction/forum/threads", "body": { "mode": "raw", "raw": "{\"lesson_id\": \"{{lesson_id}}\", \"title\": \"Question about Chapter 1\", \"content\": \"Can you explain...\"}" } } },
+						{ "name": "Add Comment to Thread", "request": { "method": "POST", "url": "{{base_url}}/api/learning/interaction/forum/threads/{{thread_id}}/comments", "body": { "mode": "raw", "raw": "{\"content\": \"I have the same question!\"}" } } },
+						{ "name": "Get Lesson Threads", "request": { "method": "GET", "url": "{{base_url}}/api/learning/interaction/forum/lesson/{{lesson_id}}" } },
+						{ "name": "Get Thread Comments", "request": { "method": "GET", "url": "{{base_url}}/api/learning/interaction/forum/threads/{{thread_id}}/comments" } }
+					]
+				},
+				{
+					"name": "Operation & Management",
+					"item": [
+						{ "name": "Approve/Reject Enrollment", "request": { "method": "POST", "url": "{{base_url}}/api/learning/operation/enrollments/{{enrollment_id}}/status", "body": { "mode": "raw", "raw": "{\"status\": \"ACTIVE\"}" } } },
+						{ "name": "Get Instructor Stats", "request": { "method": "GET", "url": "{{base_url}}/api/learning/operation/instructor/dashboard" } }
+					]
+				},
+				{
+					"name": "Reporting & Analytics",
+					"item": [
+						{ "name": "Get Course Performance", "request": { "method": "GET", "url": "{{base_url}}/api/learning/reporting/course/{{course_id}}" } },
+						{ "name": "Get My Progress Report", "request": { "method": "GET", "url": "{{base_url}}/api/learning/reporting/learner/me" } },
+						{ "name": "Get Student Report (Admin)", "request": { "method": "GET", "url": "{{base_url}}/api/learning/reporting/learner/{{student_id}}" } }
+					]
+				},
+				{
+					"name": "Advanced Features",
+					"item": [
+						{ "name": "Get Leaderboard", "request": { "method": "GET", "url": "{{base_url}}/api/learning/advanced/leaderboard?limit=10" } },
+						{ "name": "Get My Rank/XP", "request": { "method": "GET", "url": "{{base_url}}/api/learning/advanced/my-rank" } },
+						{ "name": "Submit xAPI Statement", "request": { "method": "POST", "url": "{{base_url}}/api/learning/advanced/xapi/statements", "body": { "mode": "raw", "raw": "{\"actor\": {\"mbox\": \"mailto:student@example.com\"}, \"verb\": {\"id\": \"http://adlnet.gov/expapi/verbs/completed\"}, \"object\": {\"id\": \"http://example.com/lessons/lesson-1\"}}" } } },
+						{ "name": "Get SCORM Metadata", "request": { "method": "GET", "url": "{{base_url}}/api/learning/advanced/scorm/{{lesson_id}}" } }
+					]
 				}
 			]
 		}

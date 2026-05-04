@@ -39,3 +39,13 @@ export enum UserStatus {
     LOCKED = 'locked',
     DELETED = 'deleted',
 }
+
+/**
+ * Media Provider Key
+ * @property CLOUDINARY: Cloudinary provider
+ * @property KEDIA: Kedia (KASMA MEDIA) provider
+ */
+export enum MediaProviderKey {
+    CLOUDINARY = 'CLOUDINARY',
+    KEDIA = 'KEDIA',
+}

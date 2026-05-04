@@ -15,7 +15,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MailModule } from '../mail/mail.module';
 import { EcommerceModule } from '../ecommerce/ecommerce.module';
+import { BlogModule } from '../blog/blog.module';
+import { MediaModule } from '../media/media.module';
+import { LearningModule } from '../learning/learning.module';
 import { LockModule } from '@/shared/lock/lock.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -25,6 +29,7 @@ import { LockModule } from '@/shared/lock/lock.module';
       envFilePath: '.env',
       load: [authConfig],
     }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     BullModule.forRootAsync({
       imports: [ConfigModule],
@@ -46,6 +51,9 @@ import { LockModule } from '@/shared/lock/lock.module';
     RegistryModule,
     MailModule,
     EcommerceModule,
+    BlogModule,
+    MediaModule,
+    LearningModule,
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],

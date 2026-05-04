@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, FindOptionsWhere } from 'typeorm';
 
 import { ProductCategory } from '@/entities/ecommerce/product-category.entity';
 import { ProductTag } from '@/entities/ecommerce/product-tag.entity';
@@ -8,6 +8,7 @@ import { Product } from '@/entities/ecommerce/product.entity';
 import { ProductVariant } from '@/entities/ecommerce/product-variant.entity';
 import { ProductDetail } from '@/entities/mongo/product-detail.mongo-entity';
 import { CreateProductDto, UpdateProductDto, ProductFilterDto } from '@/dto/ecommerce-dto/product.dto';
+import { ContentSanitizerService } from '@/modules/media/content-sanitizer.service';
 
 @Injectable()
 export class ProductCatalogService {
@@ -22,60 +23,99 @@ export class ProductCatalogService {
     private readonly variantRepo: Repository<ProductVariant>,
     @InjectRepository(ProductDetail, 'mongo')
     private readonly detailRepo: Repository<ProductDetail>,
+    private readonly sanitizer: ContentSanitizerService,
   ) { }
 
-  async createProduct(dto: CreateProductDto) {
+  async createProduct(dto: CreateProductDto, ctx: { app_key: string; tenant_key: string }) {
+    // 0. Validate slug uniqueness per tenant
+    const existing = await this.productRepo.findOne({
+      where: { slug: dto.slug, app_key: ctx.app_key, tenant_key: ctx.tenant_key },
+    });
+    if (existing) throw new ConflictException(`Product slug "${dto.slug}" already exists`);
+
+    // 1. Create Postgres Product
     const product = this.productRepo.create({
-      code: (dto as any).code,
       name: dto.name,
       slug: dto.slug,
-      shortDescription: (dto as any).shortDescription,
-      price: dto.price,
-      salePrice: (dto as any).salePrice,
+      shortDescription: dto.description ? this.sanitizer.sanitize(dto.description).substring(0, 255) : '', // Assuming shortDescription from description start
+      price: dto.price || 0,
+      salePrice: 0, // Default for now
       categoryId: dto.categoryId,
+      isActive: dto.isActive !== undefined ? dto.isActive : true,
+      app_key: ctx.app_key,
+      tenant_key: ctx.tenant_key,
     });
     const savedProduct = await this.productRepo.save(product);
 
-    const detail = this.detailRepo.create({
-      product_id: savedProduct.id,
-      description: dto.description,
-      specifications: dto.specifications || [],
-      attributes: dto.attributes || [],
-      media: dto.media || [],
-    });
-    await this.detailRepo.save(detail);
+    try {
+      // 2. Create Mongo Detail
+      const detail = this.detailRepo.create({
+        product_id: savedProduct.id,
+        description: this.sanitizer.sanitize(dto.description || ''),
+        specifications: dto.specifications || [],
+        attributes: dto.attributes || [],
+        media: dto.media || [],
+      });
+      await this.detailRepo.save(detail);
 
-    return { success: true, productId: savedProduct.id };
+      this.logAction('create', 'system', ctx);
+      return { success: true, productId: savedProduct.id };
+    } catch (error) {
+      // ROLLBACK Postgres if Mongo fails
+      await this.productRepo.delete(savedProduct.id);
+      throw error;
+    }
   }
 
-  async updateProduct(id: string, data: UpdateProductDto) {
-    await this.productRepo.update(id, {
-      name: data.name,
-      price: data.price,
-      salePrice: (data as any).salePrice,
-      shortDescription: (data as any).shortDescription,
+  async updateProduct(id: string, data: UpdateProductDto, ctx: { app_key: string; tenant_key: string }) {
+    const product = await this.productRepo.findOne({
+      where: { id, app_key: ctx.app_key, tenant_key: ctx.tenant_key },
     });
+    if (!product) throw new NotFoundException('Product not found');
 
-    const detail = await this.detailRepo.findOne({ where: { product_id: id } as any });
+    // Update Postgres
+    Object.assign(product, {
+      name: data.name ?? product.name,
+      price: data.price ?? product.price,
+      categoryId: data.categoryId ?? product.categoryId,
+      isActive: data.isActive ?? product.isActive,
+    });
+    await this.productRepo.save(product);
+
+    // Update Mongo
+    const detail = await this.detailRepo.findOne({
+      where: { product_id: id } as FindOptionsWhere<ProductDetail>
+    });
     if (detail) {
-      detail.description = data.description;
-      detail.specifications = data.specifications;
-      detail.attributes = data.attributes;
-      detail.media = data.media;
+      detail.description = data.description ? this.sanitizer.sanitize(data.description) : detail.description;
+      detail.specifications = data.specifications ?? detail.specifications;
+      detail.attributes = data.attributes ?? detail.attributes;
+      detail.media = data.media ?? detail.media;
       await this.detailRepo.save(detail);
     }
 
+    this.logAction('update', 'system', ctx);
     return { success: true, message: 'Product updated successfully' };
   }
 
-  async deleteProduct(id: string) {
+  async deleteProduct(id: string, ctx: { app_key: string; tenant_key: string }) {
+    const product = await this.productRepo.findOne({
+      where: { id, app_key: ctx.app_key, tenant_key: ctx.tenant_key },
+    });
+    if (!product) throw new NotFoundException('Product not found');
+
     await this.productRepo.delete(id);
-    await this.detailRepo.delete({ product_id: id } as any);
+    await this.detailRepo.delete({ product_id: id } as FindOptionsWhere<ProductDetail>);
+
+    this.logAction('delete', 'system', ctx);
     return { success: true, message: 'Product deleted successfully' };
   }
 
-  async getAllProducts(filter?: ProductFilterDto) {
-    const where: any = {};
+  async getAllProducts(filter: ProductFilterDto, ctx: { app_key: string; tenant_key: string }) {
+    const where: any = {
+      app_key: ctx.app_key,
+      tenant_key: ctx.tenant_key,
+    };
     if (filter?.categoryId) where.categoryId = filter.categoryId;
     if (filter?.isActive !== undefined) where.isActive = filter.isActive;
 
@@ -85,15 +125,15 @@ export class ProductCatalogService {
     });
   }
 
-  async getProductById(id: string) {
+  async getProductById(id: string, ctx: { app_key: string; tenant_key: string }) {
     const core = await this.productRepo.findOne({
-      where: { id },
+      where: { id, app_key: ctx.app_key, tenant_key: ctx.tenant_key },
       relations: ['category', 'tags', 'variants'],
     });
     if (!core) throw new NotFoundException('Product not found');
 
     const detail = await this.detailRepo.findOne({
-      where: { product_id: id } as any,
+      where: { product_id: id } as FindOptionsWhere<ProductDetail>,
     });
 
     return {
@@ -102,38 +142,13 @@ export class ProductCatalogService {
     };
   }
 
-  async getAllCategories() {
-    return await this.categoryRepo.find();
+  async getAllCategories(ctx: { app_key: string; tenant_key: string }) {
+    return await this.categoryRepo.find({
+      where: { app_key: ctx.app_key, tenant_key: ctx.tenant_key } as any,
+    });
   }
 
-  async compareProducts(productIds: string[]) {
-    const details = await this.detailRepo.find({
-      where: { product_id: { $in: productIds } } as any,
-    });
-
-    return details.map(d => ({
-      productId: d.product_id,
-      specs: d.specifications,
-      attributes: d.attributes
-    }));
-  }
-
-  async generateFeed() {
-    const products = await this.productRepo.find();
-    const details = await this.detailRepo.find();
-
-    const detailMap = new Map(details.map(d => [d.product_id, d]));
-
-    return products.map(p => {
-      const d = detailMap.get(p.id);
-      return {
-        id: p.id,
-        title: p.name,
-        price: `${p.price} VND`,
-        image_url: d?.media?.[0]?.mediaUrl || '',
-        category: p.categoryId,
-        availability: 'in_stock'
-      };
-    });
+  private logAction(action: string, userId: string, ctx: { app_key: string; tenant_key: string }) {
+    console.log(`[AUDIT LOG - ECOMMERCE] Action: ${action}, User: ${userId}, App: ${ctx.app_key}, Tenant: ${ctx.tenant_key}`);
   }
 }
