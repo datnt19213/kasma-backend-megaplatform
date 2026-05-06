@@ -53,4 +53,7 @@ export class LearningCourse extends MultiTenantEntity {
 
   @OneToMany(() => LearningChapter, (chapter) => chapter.course)
   chapters: LearningChapter[];
+
+  @Column({ default: false })
+  is_strict_order: boolean;
 }

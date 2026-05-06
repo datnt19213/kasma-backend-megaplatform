@@ -18,6 +18,7 @@ import { LearningLiveSession } from '@/entities/learning/learning-live-session.e
 import { LearningAnnouncement } from '@/entities/learning/learning-announcement.entity';
 import { LearningForumThread } from '@/entities/mongo/learning-forum-thread.mongo-entity';
 import { LearningForumComment } from '@/entities/mongo/learning-forum-comment.mongo-entity';
+import { LearningReview } from '@/entities/mongo/learning-review.mongo-entity';
 import { LearningPath } from '@/entities/learning/learning-path.entity';
 import { LearningPathCourse } from '@/entities/learning/learning-path-course.entity';
 import { UserLearningPoint } from '@/entities/learning/user-learning-point.entity';
@@ -31,6 +32,7 @@ import { AssessmentService } from './assessment/assessment.service';
 import { GradingService } from './assessment/grading.service';
 import { CertificateService } from './credential/certificate.service';
 import { ForumService } from './interaction/forum.service';
+import { ReviewService } from './interaction/review.service';
 import { OperationService } from './operation/operation.service';
 import { ReportingService } from './reporting/reporting.service';
 import { GamificationService } from './advanced/gamification.service';
@@ -41,6 +43,7 @@ import { LearningPlayerController } from './player/learning-player.controller';
 import { AssessmentController } from './assessment/assessment.controller';
 import { CredentialController } from './credential/credential.controller';
 import { InteractionController } from './interaction/interaction.controller';
+import { ReviewController } from './interaction/review.controller';
 import { OperationController } from './operation/operation.controller';
 import { ReportingController } from './reporting/reporting.controller';
 import { AdvancedController } from './advanced/advanced.controller';
@@ -56,7 +59,7 @@ import { MediaModule } from '../media/media.module';
     ], 'postgres'),
     TypeOrmModule.forFeature([
       LearningMaterial, LearningNote, LearningQuestion, LearningSubmission,
-      LearningForumThread, LearningForumComment
+      LearningForumThread, LearningForumComment, LearningReview
     ], 'mongo'),
     MediaModule,
   ],
@@ -67,6 +70,7 @@ import { MediaModule } from '../media/media.module';
     AssessmentController,
     CredentialController,
     InteractionController,
+    ReviewController,
     OperationController,
     ReportingController,
     AdvancedController,
@@ -81,6 +85,7 @@ import { MediaModule } from '../media/media.module';
     GradingService,
     CertificateService,
     ForumService,
+    ReviewService,
     OperationService,
     ReportingService,
     GamificationService,

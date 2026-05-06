@@ -4,6 +4,9 @@ import { Repository } from 'typeorm';
 import { LearningEnrollment, EnrollmentStatus } from '@/entities/learning/learning-enrollment.entity';
 import { LearningProgress } from '@/entities/learning/learning-progress.entity';
 import { LearningLesson } from '@/entities/learning/learning-lesson.entity';
+import { GamificationService, XPTrigger } from '../advanced/gamification.service';
+import { NotificationClientService } from '@/modules/integration/notification-client.service';
+import { LearningCourse } from '@/entities/learning/learning-course.entity';
 
 @Injectable()
 export class LearningExperienceService {
@@ -14,6 +17,10 @@ export class LearningExperienceService {
     private readonly progressRepo: Repository<LearningProgress>,
     @InjectRepository(LearningLesson, 'postgres')
     private readonly lessonRepo: Repository<LearningLesson>,
+    @InjectRepository(LearningCourse, 'postgres')
+    private readonly courseRepo: Repository<LearningCourse>,
+    private readonly gamificationService: GamificationService,
+    private readonly notificationClient: NotificationClientService,
   ) {}
 
   async checkAccess(lessonId: string, userId: string, ctx: { app_key: string; tenant_key: string }) {
@@ -45,6 +52,28 @@ export class LearningExperienceService {
       }
     }
 
+    // Strict Order Progress Logic
+    const course = await this.courseRepo.findOne({
+      where: { id: lesson.chapter.course_id, ...ctx }
+    });
+    
+    if (course?.is_strict_order) {
+      // Find previous lesson in the same chapter
+      const previousLesson = await this.lessonRepo.findOne({
+        where: { chapter_id: lesson.chapter_id, order: lesson.order - 1, ...ctx }
+      });
+
+      if (previousLesson) {
+        const previousProgress = await this.progressRepo.findOne({
+          where: { user_id: userId, lesson_id: previousLesson.id, ...ctx }
+        });
+
+        if (!previousProgress || !previousProgress.is_completed) {
+          throw new ForbiddenException('Bạn phải hoàn thành bài học trước đó (Strict Progress is enabled).');
+        }
+      }
+    }
+
     return { access: true, is_preview: false };
   }
 
@@ -66,6 +95,20 @@ export class LearningExperienceService {
     if (data.completed && !progress.is_completed) {
       progress.is_completed = true;
       progress.completed_at = new Date();
+
+      // Hook: Gamification & Notification
+      try {
+        await this.gamificationService.awardXP(userId, XPTrigger.LESSON_COMPLETE, ctx);
+        
+        await this.notificationClient.sendNotification(ctx.tenant_key, ctx.app_key, {
+          userId,
+          title: 'Chúc mừng bạn đã hoàn thành bài học!',
+          content: 'Bạn vừa nhận được 50 XP cho việc hoàn thành bài học này.',
+          type: 'SYSTEM',
+        });
+      } catch (e) {
+        console.error('Failed to trigger gamification hook:', e);
+      }
     }
 
     return await this.progressRepo.save(progress);

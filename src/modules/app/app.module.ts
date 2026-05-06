@@ -18,6 +18,7 @@ import { EcommerceModule } from '../ecommerce/ecommerce.module';
 import { BlogModule } from '../blog/blog.module';
 import { MediaModule } from '../media/media.module';
 import { LearningModule } from '../learning/learning.module';
+import { IntegrationModule } from '../integration/integration.module';
 import { LockModule } from '@/shared/lock/lock.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -54,6 +55,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     BlogModule,
     MediaModule,
     LearningModule,
+    IntegrationModule,
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],

@@ -502,7 +502,9 @@
 						{ "name": "Create Forum Thread", "request": { "method": "POST", "url": "{{base_url}}/api/learning/interaction/forum/threads", "body": { "mode": "raw", "raw": "{\"lesson_id\": \"{{lesson_id}}\", \"title\": \"Question about Chapter 1\", \"content\": \"Can you explain...\"}" } } },
 						{ "name": "Add Comment to Thread", "request": { "method": "POST", "url": "{{base_url}}/api/learning/interaction/forum/threads/{{thread_id}}/comments", "body": { "mode": "raw", "raw": "{\"content\": \"I have the same question!\"}" } } },
 						{ "name": "Get Lesson Threads", "request": { "method": "GET", "url": "{{base_url}}/api/learning/interaction/forum/lesson/{{lesson_id}}" } },
-						{ "name": "Get Thread Comments", "request": { "method": "GET", "url": "{{base_url}}/api/learning/interaction/forum/threads/{{thread_id}}/comments" } }
+						{ "name": "Get Thread Comments", "request": { "method": "GET", "url": "{{base_url}}/api/learning/interaction/forum/threads/{{thread_id}}/comments" } },
+						{ "name": "Create Review", "request": { "method": "POST", "url": "{{base_url}}/api/learning/interaction/reviews/{{course_id}}", "body": { "mode": "raw", "raw": "{\"rating\": 5, \"comment\": \"Great course!\"}" } } },
+						{ "name": "Get Course Reviews", "request": { "method": "GET", "url": "{{base_url}}/api/learning/interaction/reviews/{{course_id}}" } }
 					]
 				},
 				{
