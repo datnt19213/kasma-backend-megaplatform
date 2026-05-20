@@ -7,7 +7,7 @@ export interface CreateNotificationDto {
   type?: string;
   userId: string;
   templateId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null>;
   channels?: string[];
   priority?: string;
 }
@@ -27,14 +27,22 @@ export class NotificationClientService {
     data: CreateNotificationDto
   ): Promise<boolean> {
     try {
-      const response = await fetch(`${this.notiServiceUrl}/api/notifications`, {
+      const response = await fetch(`${this.notiServiceUrl}/api/notification/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'tenant_key': tenantKey,
-          'app_key': appKey,
+          'X-Tenant-Kasma-Id': tenantKey,
+          'X-App-Kasma-Id': appKey,
+          'X-User-Id': data.userId,
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          title: data.title,
+          content: data.content,
+          type: data.type || 'IN_APP',
+          userId: data.userId,
+          templateId: data.templateId,
+          metadata: data.metadata,
+        }),
       });
 
       if (!response.ok) {
@@ -44,7 +52,8 @@ export class NotificationClientService {
 
       return true;
     } catch (error) {
-      this.logger.error(`Error sending notification: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'unknown error';
+      this.logger.error(`Error sending notification: ${message}`);
       return false;
     }
   }

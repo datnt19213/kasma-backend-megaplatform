@@ -19,6 +19,7 @@ import { BlogModule } from '../blog/blog.module';
 import { MediaModule } from '../media/media.module';
 import { LearningModule } from '../learning/learning.module';
 import { IntegrationModule } from '../integration/integration.module';
+import { SocialModule } from '../social/social.module';
 import { LockModule } from '@/shared/lock/lock.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -56,6 +57,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     MediaModule,
     LearningModule,
     IntegrationModule,
+    SocialModule,
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],

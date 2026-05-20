@@ -533,6 +533,116 @@
 				}
 			]
 		}
+	},
+	{
+		"name": "8. SOCIAL MEDIA",
+		"item": [
+			{
+				"name": "Connection",
+				"item": [
+					{ "name": "Follow / Unfollow User", "request": { "method": "POST", "url": "{{base_url}}/api/social/connection/follow/{{target_user_id}}" } },
+					{ "name": "Send Friend Request", "request": { "method": "POST", "url": "{{base_url}}/api/social/connection/friend/request/{{target_user_id}}" } },
+					{ "name": "Respond to Friend Request", "request": { "method": "POST", "url": "{{base_url}}/api/social/connection/friend/{{request_id}}/respond", "body": { "mode": "raw", "raw": "{\"action\": \"ACCEPT\"}" } } },
+					{ "name": "Block / Unblock User", "request": { "method": "POST", "url": "{{base_url}}/api/social/connection/block/{{target_user_id}}" } },
+					{ "name": "Get My Following List", "request": { "method": "GET", "url": "{{base_url}}/api/social/connection/following?page=1&limit=20" } },
+					{ "name": "Get My Followers List", "request": { "method": "GET", "url": "{{base_url}}/api/social/connection/followers?page=1&limit=20" } },
+					{ "name": "Get My Friends List", "request": { "method": "GET", "url": "{{base_url}}/api/social/connection/friends?page=1&limit=20" } },
+					{ "name": "Get Pending Friend Requests", "request": { "method": "GET", "url": "{{base_url}}/api/social/connection/friend/pending" } }
+				]
+			},
+			{
+				"name": "Profile",
+				"item": [
+					{ "name": "Get My Profile", "request": { "method": "GET", "url": "{{base_url}}/api/social/profile/me" } },
+					{ "name": "Update My Profile", "request": { "method": "POST", "url": "{{base_url}}/api/social/profile/update", "body": { "mode": "raw", "raw": "{\"bio\": \"Hello!\", \"location\": \"Ho Chi Minh City\", \"interests\": [\"tech\", \"music\"], \"is_private\": false}" } } },
+					{ "name": "Get User Profile", "request": { "method": "GET", "url": "{{base_url}}/api/social/profile/{{target_user_id}}" } }
+				]
+			},
+			{
+				"name": "Discovery",
+				"item": [
+					{ "name": "Get Friend Suggestions", "request": { "method": "GET", "url": "{{base_url}}/api/social/discovery/suggestions?limit=10" } }
+				]
+			},
+			{
+				"name": "Content (Timeline)",
+				"item": [
+					{ "name": "Newsfeed", "request": { "method": "GET", "url": "{{base_url}}/api/social/newsfeed?page=1&limit=20" } },
+					{ "name": "Create Post", "request": { "method": "POST", "url": "{{base_url}}/api/social/posts", "body": { "mode": "raw", "raw": "{\"content\": \"Hello world!\", \"privacy\": \"PUBLIC\", \"type\": \"TEXT\"}" } } },
+					{ "name": "Get Post", "request": { "method": "GET", "url": "{{base_url}}/api/social/posts/{{post_id}}" } },
+					{ "name": "Delete Post", "request": { "method": "DELETE", "url": "{{base_url}}/api/social/posts/{{post_id}}" } },
+					{ "name": "Create Story", "request": { "method": "POST", "url": "{{base_url}}/api/social/stories", "body": { "mode": "raw", "raw": "{\"type\": \"IMAGE\", \"media_url\": \"http://example.com/image.jpg\"}" } } },
+					{ "name": "Get Active Stories", "request": { "method": "GET", "url": "{{base_url}}/api/social/stories/author/{{target_user_id}}" } },
+					{ "name": "View Story", "request": { "method": "POST", "url": "{{base_url}}/api/social/stories/{{story_id}}/view" } },
+					{ "name": "Delete Story", "request": { "method": "DELETE", "url": "{{base_url}}/api/social/stories/{{story_id}}" } }
+				]
+			},
+			{
+				"name": "Interaction",
+				"item": [
+					{ "name": "Toggle Reaction", "request": { "method": "POST", "url": "{{base_url}}/api/social/reactions/toggle", "body": { "mode": "raw", "raw": "{\"target_type\": \"POST\", \"target_id\": \"{{post_id}}\", \"reaction_type\": \"LOVE\"}" } } },
+					{ "name": "Get Reactions", "request": { "method": "GET", "url": "{{base_url}}/api/social/reactions?target_type=POST&target_id={{post_id}}" } },
+					{ "name": "Create Comment", "request": { "method": "POST", "url": "{{base_url}}/api/social/comments", "body": { "mode": "raw", "raw": "{\"post_id\": \"{{post_id}}\", \"content\": \"Great post!\", \"mentions\": [\"{{target_user_id}}\"]}" } } },
+					{ "name": "Get Comments by Post", "request": { "method": "GET", "url": "{{base_url}}/api/social/comments/post/{{post_id}}?page=1&limit=20" } },
+					{ "name": "Get Comment Replies", "request": { "method": "GET", "url": "{{base_url}}/api/social/comments/{{comment_id}}/replies?page=1&limit=20" } },
+					{ "name": "Delete Comment", "request": { "method": "DELETE", "url": "{{base_url}}/api/social/comments/{{comment_id}}" } },
+					{ "name": "Share/Repost Post", "request": { "method": "POST", "url": "{{base_url}}/api/social/posts/{{post_id}}/share" } }
+				]
+			},
+			{
+				"name": "Groups (Community & Fanpage)",
+				"item": [
+					{ "name": "Create Community", "request": { "method": "POST", "url": "{{base_url}}/api/social/groups/community/create", "body": { "mode": "raw", "raw": "{\"name\": \"Kasma Developers\", \"description\": \"Private dev community\", \"privacy\": \"PRIVATE\", \"requires_post_approval\": true}" } } },
+					{ "name": "Create Fanpage", "request": { "method": "POST", "url": "{{base_url}}/api/social/groups/fanpage/create", "body": { "mode": "raw", "raw": "{\"name\": \"Kasma Official\", \"organization_name\": \"Kasma Corp\", \"business_category\": \"Technology\"}" } } },
+					{ "name": "List Groups", "request": { "method": "GET", "url": "{{base_url}}/api/social/groups?type=COMMUNITY&page=1&limit=20" } },
+					{ "name": "Get Group Detail", "request": { "method": "GET", "url": "{{base_url}}/api/social/groups/{{group_id}}" } },
+					{ "name": "Join Group", "request": { "method": "POST", "url": "{{base_url}}/api/social/groups/{{group_id}}/join" } },
+					{ "name": "Leave Group", "request": { "method": "POST", "url": "{{base_url}}/api/social/groups/{{group_id}}/leave" } },
+					{ "name": "List Group Members", "request": { "method": "GET", "url": "{{base_url}}/api/social/groups/{{group_id}}/members?page=1&limit=50" } },
+					{ "name": "Approve Join Request", "request": { "method": "POST", "url": "{{base_url}}/api/social/groups/{{group_id}}/members/{{target_user_id}}/approve" } },
+					{ "name": "Update Member Role", "request": { "method": "POST", "url": "{{base_url}}/api/social/groups/{{group_id}}/members/{{target_user_id}}/role", "body": { "mode": "raw", "raw": "{\"role\": \"MODERATOR\"}" } } },
+					{ "name": "Remove / Ban Member", "request": { "method": "POST", "url": "{{base_url}}/api/social/groups/{{group_id}}/members/{{target_user_id}}/remove" } },
+					{ "name": "Create Group Post", "request": { "method": "POST", "url": "{{base_url}}/api/social/groups/{{group_id}}/posts", "body": { "mode": "raw", "raw": "{\"content\": \"Hello group!\", \"type\": \"TEXT\"}" } } },
+					{ "name": "List Group Posts", "request": { "method": "GET", "url": "{{base_url}}/api/social/groups/{{group_id}}/posts?page=1&limit=20" } },
+					{ "name": "Approve Group Post", "request": { "method": "POST", "url": "{{base_url}}/api/social/groups/{{group_id}}/posts/{{post_id}}/approve" } },
+					{ "name": "Reject Group Post", "request": { "method": "POST", "url": "{{base_url}}/api/social/groups/{{group_id}}/posts/{{post_id}}/reject" } }
+				]
+			},
+			{
+				"name": "Notices (In-app & Push)",
+				"item": [
+					{ "name": "List Notices", "request": { "method": "GET", "url": "{{base_url}}/api/social/notices?page=1&limit=20&unread_only=false" } },
+					{ "name": "Unread Count", "request": { "method": "GET", "url": "{{base_url}}/api/social/notices/unread-count" } },
+					{ "name": "Mark Notice Read", "request": { "method": "POST", "url": "{{base_url}}/api/social/notices/{{notice_id}}/read" } },
+					{ "name": "Mark All Read", "request": { "method": "POST", "url": "{{base_url}}/api/social/notices/read-all" } }
+				]
+			},
+			{
+				"name": "Trending (Hashtags)",
+				"item": [
+					{ "name": "Trending Topics", "request": { "method": "GET", "url": "{{base_url}}/api/social/trending/topics?hours=24&limit=20" } },
+					{ "name": "Search Hashtags", "request": { "method": "GET", "url": "{{base_url}}/api/social/trending/hashtags/search?q=kasma&hours=168&limit=15" } },
+					{ "name": "Posts By Hashtag", "request": { "method": "GET", "url": "{{base_url}}/api/social/trending/hashtags/kasma/posts?page=1&limit=20" } }
+				]
+			},
+			{
+				"name": "Messaging (Realtime)",
+				"item": [
+					{ "name": "Create Direct Conversation", "request": { "method": "POST", "url": "{{base_url}}/api/social/messaging/conversations/direct", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"peer_user_id\": \"{{target_user_id}}\"}" } } },
+					{ "name": "Create Group Conversation", "request": { "method": "POST", "url": "{{base_url}}/api/social/messaging/conversations/group", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"title\": \"Kasma Team\", \"member_ids\": [\"{{target_user_id}}\"]}" } } },
+					{ "name": "List My Conversations", "request": { "method": "GET", "url": "{{base_url}}/api/social/messaging/conversations?page=1&limit=20" } },
+					{ "name": "Get Conversation Detail", "request": { "method": "GET", "url": "{{base_url}}/api/social/messaging/conversations/{{conversation_id}}" } },
+					{ "name": "Send Message", "request": { "method": "POST", "url": "{{base_url}}/api/social/messaging/conversations/{{conversation_id}}/messages", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"content\": \"Hello from Kasma messaging!\", \"message_type\": \"TEXT\"}" } } },
+					{ "name": "List Messages", "request": { "method": "GET", "url": "{{base_url}}/api/social/messaging/conversations/{{conversation_id}}/messages?page=1&limit=50" } },
+					{ "name": "Mark Conversation Read", "request": { "method": "POST", "url": "{{base_url}}/api/social/messaging/conversations/{{conversation_id}}/read" } },
+					{ "name": "Add Group Members", "request": { "method": "POST", "url": "{{base_url}}/api/social/messaging/conversations/{{conversation_id}}/members/add", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"member_ids\": [\"{{target_user_id}}\"]}" } } },
+					{ "name": "Remove Group Member", "request": { "method": "POST", "url": "{{base_url}}/api/social/messaging/conversations/{{conversation_id}}/members/{{target_user_id}}/remove" } },
+					{ "name": "Update Member Role", "request": { "method": "POST", "url": "{{base_url}}/api/social/messaging/conversations/{{conversation_id}}/members/{{target_user_id}}/role", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"role\": \"ADMIN\"}" } } },
+					{ "name": "Delete Message", "request": { "method": "DELETE", "url": "{{base_url}}/api/social/messaging/messages/{{message_id}}" } }
+				]
+			}
+		]
+	}
 	],
 	"auth": {
 		"type": "bearer",

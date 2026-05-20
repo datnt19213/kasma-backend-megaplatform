@@ -117,12 +117,25 @@ graph TD
 ### 🎓 Learning & Education
 - **Course Management**: Structured syllabus management (Course > Chapter > Lesson) with support for rich learning materials.
 - **Flexible Media Storage**: Seamlessly toggle between Kedia (Internal) and Cloudinary storage for video lessons, PDFs, and assets.
-- **Content Engagement**: Progress tracking with resume playback, timestamped note-taking, and drip content unlocking.
+- **Content Engagement**: Progress tracking with resume playback, timestamped note-taking, and drip content unlocking with **Strict Order guard** (enforces sequential lesson completion).
 - **Assessment & Grading**: Comprehensive quiz/exam engine with auto-grading for objective questions and multi-provider assignment uploads.
 - **Credential & Certification**: Automated PDF certificate generation upon course completion with a public verification portal and digital badges.
+- **Interaction & Engagement**: Forum discussion per lesson with threaded comments, live class scheduling, and **Course Review system (1-5 star rating with progress gate)**.
 - **Operation & Management**: Multi-tenant enrollment approval workflows, instructor analytics dashboards, and structured learning path skill-mapping.
 - **Reporting & Analytics**: Comprehensive cross-database insights into student engagement, completion rates, and instructor revenue trends.
-- **Advanced Engagement**: Gamification engine with XP, leveling, and leaderboards, plus SCORM/xAPI support for standard e-learning content.
+- **Advanced Engagement**: Gamification engine with **automated XP hooks** (triggered on lesson completion), leveling, and leaderboards, plus SCORM/xAPI support for standard e-learning content.
+- **Cross-Service Integration**: Built-in `NotificationClientService` that pushes automated events (lesson complete, quiz graded) to `kasma-noti` for unified real-time and email notifications.
+
+### 🌐 Social Media
+- **Connection (Friendship/Follow)**: Full relationship management — Follow/Unfollow, Friend Request (accept/reject), Block/Unblock — with atomic counter updates on `UserProfile` and duplicate/block protection.
+- **User Profile Service**: Extensible `UserProfile` entity storing bio, avatar, cover, location, website, gender, birthdate, and `interests[]` for discovery. Supports public and private profile modes.
+- **User Discovery**: Smart suggestion engine scoring candidates by shared interests, follower popularity, and recent activity logs (stored in MongoDB). Excludes already-connected and blocked users.
+- **Content (Timeline)**: Comprehensive Newsfeed Engine aggregating posts based on connection graphs (Friends, Followings) while strictly respecting post privacy settings (Public, Friends, Followers, Only Me). Supports media attachments (MongoDB), tags, and 24h auto-expiring Stories with Cron job cleanup.
+- **Interaction**: Advanced Engagement system featuring Multi-type Reactions (Like, Love, Haha, Wow, Sad, Angry) on both Posts and Comments, nested Comment Replies, automated Mention extraction (mapped securely with MongoDB and hydrated with `UserProfile` basic info), and Share/Repost capabilities.
+- **Messaging (Realtime)**: Direct and group chat with participant roles (`OWNER`, `ADMIN`, `MEMBER`), AES-256-GCM encrypted message storage in MongoDB, block-list enforcement, and realtime delivery through **kasma-socket** (`chat:conversation:{id}`). See `src/modules/social/messaging/README.md`.
+- **Groups (Community & Fanpage)**: `COMMUNITY` groups support public/private membership, join approval, moderator roles, and optional post moderation (`PENDING` / `APPROVED` / `REJECTED`). `FANPAGE` pages support organization metadata for brands and businesses.
+- **Notices (In-app & Push)**: Social notification inbox in Postgres, realtime push via **kasma-socket** (`notice:user:{userId}`), and dual dispatch to **kasma-noti** (`IN_APP` + `PUSH`). Auto-triggered on likes, comments, tags, and group moderation events.
+- **Trending & Hashtags**: Extracts `#hashtags` from post bodies (Unicode-aware), merges manual `HASHTAG` tags, stores index rows in MongoDB, aggregates **trending topics** over configurable time windows, and exposes hashtag post feeds respecting privacy rules. Moderated group posts are indexed only after approval. See `src/modules/social/trending/README.md`.
 
 ### ⚡ Performance & Scalability
 - **Distributed Locking (Redlock)**: Strict concurrency control for sensitive resources (Inventory, Wallets) using Redis to prevent race conditions during high-traffic events.
